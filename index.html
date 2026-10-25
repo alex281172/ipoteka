@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Разбор ипотечного договора: график платежей и процентов, условия, схема и калькулятор досрочного и полного погашения.">
+<meta name="robots" content="noindex">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Ипотека 9,17 млн под 19,7%</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: одна колонка до 760px – справочный документ со встроенным вычислителем; все деньги моноширинным шрифтом, как в банковской выписке */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --ink:#172031; --muted:#586277; --line:#DAE0E9; --tint:#E8EEF9;
+  --accent:#3B5BA9; --int:#C9741F; --princ:#3B5BA9; --base:#8C95A6;
+  --warn:#A9401A; --warn-bg:#FBEBE3; --chk:#7A5D00; --chk-bg:#FAF1D3; --ok:#2B7352; --ok-bg:#E3F2EA;
+  --f-display:"Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-body:"Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-num:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0D1118; --surface:#151B26; --ink:#E3E7EF; --muted:#98A1B3; --line:#273042; --tint:#1A2336;
+  --accent:#93AAF0; --int:#C47A30; --princ:#6582D4; --base:#6E7789;
+  --warn:#F08B5E; --warn-bg:#2C1A13; --chk:#E3C152; --chk-bg:#29230F; --ok:#62C79A; --ok-bg:#11261D; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0D1118; --surface:#151B26; --ink:#E3E7EF; --muted:#98A1B3; --line:#273042; --tint:#1A2336;
+  --accent:#93AAF0; --int:#C47A30; --princ:#6582D4; --base:#6E7789;
+  --warn:#F08B5E; --warn-bg:#2C1A13; --chk:#E3C152; --chk-bg:#29230F; --ok:#62C79A; --ok-bg:#11261D; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-0.01em}
+h1{font-size:clamp(26px,6.4vw,38px);line-height:1.12;font-weight:700}
+h2{font-size:clamp(20px,4.6vw,25px);line-height:1.2;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0;max-width:66ch}
+a{color:var(--accent)}
+.num,td,.mono{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:12px}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+/* hero */
+.hero{display:flex;flex-direction:column;gap:12px;padding-top:4px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:4px 0 0}
+.facts div{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts dt{font-size:12px;color:var(--muted)}
+.facts dd{margin:0;font-family:var(--f-num);font-size:14.5px;font-weight:500;overflow-wrap:anywhere}
+.facts dd small{display:block;font-family:var(--f-body);font-size:12px;font-weight:400;color:var(--muted)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px}
+nav.toc a{font-size:13px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+nav.toc a:hover{border-color:var(--accent);color:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* главное */
+.key{background:var(--tint);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.key ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.key li::marker{font-family:var(--f-num);color:var(--accent);font-weight:600}
+
+/* формула */
+.formula{font-family:var(--f-num);font-size:14px;background:var(--surface);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+.formula b{color:var(--int)}
+
+/* chart */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 12px 8px;display:flex;flex-direction:column;gap:8px}
+.chart .box{position:relative;height:240px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.sw.line{height:3px;border-radius:2px}
+.sw.dash{height:0;border-top:2px dashed var(--base);background:none!important}
+
+/* tables */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-family:var(--f-body);font-weight:500;color:var(--muted);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:none}
+td.hl{color:var(--ok);font-weight:600}
+
+/* условия */
+.terms{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.terms li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.terms .row{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.chip.w{color:var(--warn);background:var(--warn-bg)}
+.chip.c{color:var(--chk);background:var(--chk-bg)}
+.chip.o{color:var(--ok);background:var(--ok-bg)}
+.terms .ref{font-size:12px;color:var(--muted);margin-left:auto}
+
+/* схема шагов */
+.flow{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.steps{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px}
+.step{flex:1 1 150px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13.5px;background:var(--bg)}
+.step b{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.arrow{align-self:center;color:var(--muted);font-family:var(--f-num)}
+@media (max-width:520px){.steps{flex-direction:column}.arrow{transform:rotate(90deg);align-self:flex-start;margin-left:14px;line-height:1}}
+
+.vs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.vs{grid-template-columns:1fr}}
+.opt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.opt.best{border-color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.opt .big{font-family:var(--f-num);font-size:22px;font-weight:600}
+.opt .big.good{color:var(--ok)}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;border-top:1px solid var(--line);padding-top:6px}
+.kv span:last-child{font-family:var(--f-num);text-align:right}
+
+.note{font-size:13.5px;color:var(--muted);border-left:3px solid var(--line);padding:2px 0 2px 12px}
+
+/* калькулятор */
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.fields{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:13px;color:var(--muted)}
+input[type=number],input[type=date],select{font:500 15px var(--f-num);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;min-width:0}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.seg label{flex:1;text-align:center;padding:9px 8px;font-size:14px;cursor:pointer;color:var(--muted)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked + span{color:var(--surface);}
+.seg label:has(input:checked){background:var(--accent);color:var(--surface);font-weight:600}
+.seg label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:-3px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13.5px}
+.check input{margin-top:3px;accent-color:var(--accent)}
+.res{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.res div{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.res dt{font-size:12px;color:var(--muted)}
+.res dd{margin:0;font:600 17px var(--f-num);overflow-wrap:anywhere}
+.res dd.good{color:var(--ok)}
+.res dd small{display:block;font:400 12px var(--f-body);color:var(--muted)}
+.warnline{font-size:13px;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:8px 10px}
+
+/* годовой график */
+details.year{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+details.year + details.year{margin-top:6px}
+details.year summary{cursor:pointer;list-style:none;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:baseline}
+details.year summary::-webkit-details-marker{display:none}
+details.year summary .y{font-weight:600;grid-row:span 2}
+details.year summary .y::before{content:"›";display:inline-block;margin-right:6px;color:var(--muted);transition:transform .15s}
+details.year[open] summary .y::before{transform:rotate(90deg)}
+details.year summary .s{font-family:var(--f-num);font-size:12.5px;color:var(--muted);text-align:right;overflow-wrap:anywhere}
+details.year .tscroll{border:none;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Ипотечный договор Сбербанка · черновик от 23.10.2026</div>
+  <h1>Ипотека 9,17 млн под 19,7% на 30 лет</h1>
+  <p class="muted">Разбор договора, график платежей и процентов, правила досрочного погашения и калькулятор. Проценты посчитаны по фактическим дням, как в договоре: первый платёж совпал с банковским до копейки.</p>
+  <dl class="facts">
+    <div><dt>Сумма кредита</dt><dd>9 170 190,00 ₽</dd></div>
+    <div><dt>Ставка</dt><dd>19,7% годовых<small>при статусе зарплатного клиента</small></dd></div>
+    <div><dt>Срок</dt><dd>360 платежей<small>23.11.2026 → 23.10.2056, 23-го числа</small></dd></div>
+    <div><dt>Платёж</dt><dd>153 431,10 ₽<small>с 23.11.2041 – 104 970,98 ₽</small></dd></div>
+    <div><dt>Проценты за весь срок</dt><dd id="f-int">≈ 37,34 млн ₽</dd></div>
+    <div><dt>Полная стоимость (ПСК)</dt><dd>20,898%<small>39 528 443,92 ₽ сверх долга</small></dd></div>
+  </dl>
+  <nav class="toc" aria-label="Разделы">
+    <a href="#grafik">График</a><a href="#usloviya">Условия</a><a href="#shema">Схема досрочки</a><a href="#calc">Калькулятор</a><a href="#kogda">Когда вносить</a><a href="#polnoe">Полное погашение</a><a href="#tablica">Таблица платежей</a>
+  </nav>
+</header>
+
+<div class="key">
+  <h3>Главное</h3>
+  <ol>
+    <li>Первые 15 лет платёж почти целиком уходит в проценты. В первом платеже в долг идёт 0 ₽, а за 15 лет из <span class="num">27,6 млн</span> выплат долг уменьшится только на <span class="num">3,1 млн</span>.</li>
+    <li>Поэтому досрочка в первые годы работает очень сильно: <span class="num">1 млн</span> в ноябре 2026 с сокращением срока закрывает кредит в июле 2037 и экономит <span class="num">≈ 25,8 млн</span> процентов.</li>
+    <li>Выбирайте «сокращение срока». Тот же <span class="num">1 млн</span> с уменьшением платежа экономит только <span class="num">≈ 4,1 млн</span>.</li>
+    <li>Вносить – как только появились деньги, не дожидаясь 23-го. Полностью закрыть можно в любой день: остаток долга + проценты за прошедшие дни.</li>
+  </ol>
+</div>
+
+<section id="grafik">
+  <div class="eyebrow">График платежей и процентов</div>
+  <h2>Почему платёж двухступенчатый</h2>
+  <p>Проценты начисляются каждый день на остаток долга: ставка делится на 365 дней (в високосный год – на 366). На старте один день стоит <span class="num">≈ 4 949 ₽</span>. Первая ступень платежа ровно равна процентам за 31-дневный месяц на всю сумму кредита:</p>
+  <div class="formula">9 170 190 × 19,7% × 31 / 365 = <b>153 431,10 ₽</b></div>
+  <p>Обычный ровный платёж на 30 лет был бы около <span class="num">150 974 ₽</span> – в длинные месяцы его не хватало бы даже на проценты. Поэтому банк поставил первую ступень на уровень процентов, а оставшийся к 2041 году долг (<span class="num">≈ 6,05 млн</span>) гасится второй ступенью по <span class="num">104 970,98 ₽</span>. В 31-дневные месяцы в долг уходят сотни рублей, в 30-дневные – около 5 тыс., в феврале – около 15 тыс.</p>
+
+  <div class="chart" role="figure" aria-label="Платежи по годам кредита: проценты и основной долг">
+    <h3>Куда уходят платежи, по годам кредита</h3>
+    <div class="legend"><span><i class="sw" style="background:var(--int)"></i>Проценты</span><span><i class="sw" style="background:var(--princ)"></i>Основной долг</span></div>
+    <div class="box"><canvas id="chYears"></canvas></div>
+  </div>
+
+  <div class="tscroll">
+    <table aria-label="Остаток долга по годам">
+      <thead><tr><th>Через</th><th>Дата</th><th>Выплачено</th><th>Из них проценты</th><th>Остаток долга</th></tr></thead>
+      <tbody id="milestones"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="usloviya">
+  <div class="eyebrow">Условия договора</div>
+  <h2>Что важно не пропустить</h2>
+  <ul class="terms">
+    <li><div class="row"><span class="chip w">Важно</span><h3>Ставка 19,7% – только для зарплатных клиентов</h3><span class="ref">п. 4</span></div>
+      <p>Хотя бы одному созаемщику нужно получить статус «Зарплатного клиента» или участника акции «Как Зарплатный 2.0» в течение 4 месяцев – до 23.02.2027. Не успели – банк может поднять ставку до уровня для обычных клиентов, и при позднем получении статуса обратно её уже не снизят. Дальше нельзя допускать 4 месяца подряд без зарплатных зачислений. Если статус у обоих, потеря у одного ставку не меняет.</p></li>
+    <li><div class="row"><span class="chip w">Важно</span><h3>Страховку квартиры продлевать вовремя</h3><span class="ref">п. 10, 13</span></div>
+      <p>С 31-го дня просрочки – неустойка в половину ставки (9,85% годовых) на весь остаток долга. На старте это <span class="num">≈ 2 475 ₽</span> в день, около 74 тыс. в месяц.</p></li>
+    <li><div class="row"><span class="chip w">Важно</span><h3>Просрочка платежа</h3><span class="ref">п. 13</span></div>
+      <p>Неустойка по ключевой ставке ЦБ на дату договора (сейчас она около 14% годовых) на сумму просрочки за каждый день.</p></li>
+    <li><div class="row"><span class="chip c">Проверить</span><h3>Пустые места в черновике</h3><span class="ref">с. 1, п. 18, 19</span></div>
+      <p>Не указаны номер счёта для выдачи (п. 18), счета для автосписания платежей – стоит пометка «счета не найдены, проверьте длительное поручение» (п. 19) и представитель банка на первой странице. Без счёта в п. 19 платёж может не списаться → просрочка.</p></li>
+    <li><div class="row"><span class="chip c">Проверить</span><h3>Что внутри ПСК</h3><span class="ref">с. 1, п. 10, 15</span></div>
+      <p>ПСК в рублях – <span class="num">39,53 млн</span>. По расчёту проценты дают <span class="num">≈ 37,34 млн</span>, остальные <span class="num">≈ 2,18 млн</span> – платежи третьим лицам: страховка за весь срок и услуги (аккредитив <span class="num">3 400 ₽</span>, «on-line регистрация» Домклик). Стоит попросить у банка расшифровку.</p></li>
+    <li><div class="row"><span class="chip o">Полезно</span><h3>«Ставка на снижение»</h3><span class="ref">п. 4</span></div>
+      <p>С 23.11.2027 один раз за 7-летний период можно попросить снизить ставку на столько, на сколько за это время упали ставки Сбера по рефинансированию (при долге не больше 79,9% от залога), но не ниже рыночной ставки ЦБ (РПС). Новая ставка – со следующей даты платежа. Право разовое, поэтому момент лучше выбирать, когда снижение уже заметное.</p></li>
+    <li><div class="row"><span class="chip o">Полезно</span><h3>Досрочка без комиссий</h3><span class="ref">п. 2, 8</span></div>
+      <p>Можно гасить частично или полностью, в любой день, сколько угодно раз. При частичном погашении – выбор: уменьшить платёж или срок. Ставка при этом не меняется.</p></li>
+    <li><div class="row"><span class="chip o">Полезно</span><h3>Ипотечные каникулы</h3><span class="ref">с. 1, п. 2, 7</span></div>
+      <p>По закону можно попросить приостановить или уменьшить платежи при трудной жизненной ситуации. Срок кредита продлится на время каникул.</p></li>
+    <li><div class="row"><span class="chip o">Полезно</span><h3>Передача долга</h3><span class="ref">п. 14</span></div>
+      <p>Банк вправе передать кредит любому третьему лицу. Условия договора при этом остаются прежними.</p></li>
+  </ul>
+</section>
+
+<section id="shema">
+  <div class="eyebrow">Досрочное погашение</div>
+  <h2>Схема: как банк проводит досрочку</h2>
+  <div class="flow">
+    <h3>Если вносить в дату платежа, 23-го</h3>
+    <div class="steps">
+      <div class="step"><b>Шаг 1</b>Списывается обычный платёж</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 2</b>Вся досрочка уходит в основной долг</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 3</b>С 24-го проценты идут уже с меньшего остатка</div>
+    </div>
+  </div>
+  <div class="flow">
+    <h3>Если вносить между датами</h3>
+    <div class="steps">
+      <div class="step"><b>Шаг 1</b>Из суммы гасятся проценты за дни с прошлого 23-го</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 2</b>Остаток уходит в основной долг</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 3</b>23-го банк берёт только проценты за оставшиеся дни</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 4</b>Разницу с обычным платежом тоже внести досрочкой</div>
+    </div>
+    <p class="small muted">Проценты внутри досрочки – не переплата: это те же деньги, что ушли бы в ближайший платёж. Поэтому он и становится меньше.</p>
+  </div>
+  <p class="note">Досрочку оформляют только через «Досрочное погашение» в СберБанк Онлайн или Домклик – деньги, просто лежащие на счёте, долг не уменьшают. Онлайн, по данным Домклик, минимум – 30% платежа, это <span class="num">≈ 46 тыс. ₽</span>; меньшие суммы уточните в банке.</p>
+
+  <h3>Сократить срок или уменьшить платёж – на примере 1 млн 23.11.2026</h3>
+  <div class="vs">
+    <div class="opt best">
+      <div class="eyebrow">Сократить срок</div>
+      <div class="big good" id="vs-term-save">≈ 25,85 млн</div><div class="small muted">экономия процентов</div>
+      <div class="kv"><span>Платёж</span><span>153 431,10 ₽</span></div>
+      <div class="kv"><span>Последний платёж</span><span id="vs-term-end">07.2037</span></div>
+      <div class="kv"><span>Проценты всего</span><span id="vs-term-int">11,50 млн</span></div>
+    </div>
+    <div class="opt">
+      <div class="eyebrow">Уменьшить платёж</div>
+      <div class="big" id="vs-pay-save">≈ 4,06 млн</div><div class="small muted">экономия процентов</div>
+      <div class="kv"><span>Платёж</span><span id="vs-pay-p">136 699,67 ₽</span></div>
+      <div class="kv"><span>с 23.11.2041</span><span id="vs-pay-p2">93 524,05 ₽</span></div>
+      <div class="kv"><span>Проценты всего</span><span id="vs-pay-int">33,29 млн</span></div>
+    </div>
+  </div>
+  <p class="note">Нужна подушка безопасности – можно уменьшать платёж, но продолжать платить прежнюю сумму, а разницу каждый месяц вносить досрочкой. Эффект почти как у сокращения срока, а обязательный платёж ниже. Как именно банк пересчитает двухступенчатый график, лучше сверить с новым графиком в приложении после первой досрочки.</p>
+</section>
+
+<section id="calc">
+  <div class="eyebrow">Калькулятор</div>
+  <h2>Посчитать свою досрочку</h2>
+  <div class="calc">
+    <div class="fields">
+      <div class="field"><label for="oneAmt">Разовая досрочка, ₽</label><input id="oneAmt" type="number" min="0" step="10000" value="1000000" inputmode="numeric"></div>
+      <div class="field"><label for="oneDate">Дата разовой досрочки</label><input id="oneDate" type="date" value="2026-11-23" min="2026-10-25" max="2056-10-22"></div>
+      <div class="field"><label for="mAmt">Каждый месяц сверх платежа, ₽</label><input id="mAmt" type="number" min="0" step="5000" value="0" inputmode="numeric"></div>
+      <div class="field"><label for="mFrom">Начиная с платежа</label><select id="mFrom"></select></div>
+    </div>
+    <div class="field">
+      <span class="small muted" id="modeLbl">Что уменьшать</span>
+      <div class="seg" role="radiogroup" aria-labelledby="modeLbl">
+        <label><input type="radio" name="mode" id="mTerm" value="term" checked><span>Срок</span></label>
+        <label><input type="radio" name="mode" id="mPay" value="pay"><span>Платёж</span></label>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="topup" checked><span>Если досрочка между датами – разницу в ближайший платёж тоже вносить досрочкой (как будто платите обычную сумму)</span></label>
+    <div id="warn" class="warnline" hidden></div>
+    <dl class="res">
+      <div><dt>Последний платёж</dt><dd id="r-end">–</dd></div>
+      <div><dt>Платежей</dt><dd id="r-n">–</dd></div>
+      <div><dt>Проценты за всё время</dt><dd id="r-int">–</dd></div>
+      <div><dt>Экономия процентов</dt><dd id="r-save" class="good">–</dd></div>
+      <div><dt>Всего досрочно</dt><dd id="r-pre">–</dd></div>
+      <div><dt>Обязательный платёж</dt><dd id="r-pay">–</dd></div>
+    </dl>
+    <div class="chart" role="figure" aria-label="Остаток долга без досрочки и с досрочкой">
+      <h3>Остаток долга</h3>
+      <div class="legend"><span><i class="sw dash"></i>По договору</span><span><i class="sw line" style="background:var(--princ)"></i>С досрочкой</span></div>
+      <div class="box"><canvas id="chBal"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section id="kogda">
+  <div class="eyebrow">Когда вносить</div>
+  <h2>Лучший день для досрочки</h2>
+  <div class="stack">
+    <h3>Частичная досрочка</h3>
+    <p><b>Как только деньги есть – вносите.</b> Каждый день ожидания на старте стоит <span class="num">≈ 540 ₽</span> процентов на каждый 1 млн, а вклады дают меньше 19,7% и ещё облагаются налогом.</p>
+    <p>Не копите круглую сумму: каждый внесённый рубль начинает экономить сразу.</p>
+  </div>
+  <div class="stack">
+    <h3>Если до 23-го осталось 1–3 дня</h3>
+    <p><b>Внести в дату платежа.</b> 23-го сначала списывается обычный платёж, он закрывает все проценты за месяц, и вся досрочка целиком уходит в основной долг. Одна операция, ближайший платёж не меняется.</p>
+    <p><b>Внести сразу, между датами.</b> Из досрочки сначала гасятся проценты за дни с прошлого 23-го, остальное уходит в долг. 23-го банк спишет только проценты за оставшиеся дни, а освободившуюся разницу с обычным платежом нужно внести второй досрочкой – иначе эти деньги просто останутся у вас, а не уйдут в долг.</p>
+    <p>Проценты внутри досрочки – не переплата: это те же проценты, что ушли бы в платёж 23-го. Поэтому <b>строго по расчёту внести сразу всегда выгоднее</b>, если разницу вы тоже вносите досрочкой. Дата платежа – это вариант для удобства, и у него есть цена: <span class="num">≈ 3,7 тыс. ₽</span> за каждый день на каждый 1 млн за весь срок.</p>
+  </div>
+  <div class="tscroll">
+    <table aria-label="1 млн за 1–3 дня до платежа 23.12.2026">
+      <thead><tr><th>1 млн внесли</th><th>Ушло в проценты</th><th>Ушло в долг</th><th>Платёж 23.12</th><th>Разница – второй досрочкой</th><th>Выгода против 23.12</th></tr></thead>
+      <tbody id="neardate"></tbody>
+    </table>
+  </div>
+  <p class="small muted">Срок сокращается, разница в ближайший платёж вносится досрочкой. Вторая операция онлайн тоже должна быть не меньше ≈ 46 тыс. ₽.</p>
+  <div class="tscroll">
+    <table aria-label="1 млн появился 24.11.2026 – когда внести">
+      <thead><tr><th>1 млн появился 24.11.2026, внесли</th><th>Экономия процентов</th><th>Потеря от ожидания</th></tr></thead>
+      <tbody id="timing"></tbody>
+    </table>
+  </div>
+  <p class="small muted">Сравнение при одинаковых деньгах: если досрочка между датами, разница в ближайший платёж тоже вносится досрочкой. Срок сокращается.</p>
+  <div class="tscroll">
+    <table aria-label="1 млн в разные годы кредита">
+      <thead><tr><th>1 млн с сокращением срока</th><th>Последний платёж</th><th>Экономия процентов</th></tr></thead>
+      <tbody id="byyear"></tbody>
+    </table>
+  </div>
+  <p class="note">Налоговый вычет по процентам возвращает 13% от уплаченных процентов. Досрочка уменьшает проценты, а с ними и вычет, но экономия всё равно больше вычета.</p>
+</section>
+
+<section id="polnoe">
+  <div class="eyebrow">Полное погашение</div>
+  <h2>Закрыть ипотеку целиком</h2>
+  <p>Можно в любой день. Сумма = остаток долга после последнего платежа + проценты с прошлого 23-го по день погашения включительно. Лучший день – как только собрана вся сумма: ждать 23-го незачем, проценты за эти дни всё равно набегут. В дату платежа сумма = обычный платёж + остаток после него.</p>
+  <div class="calc">
+    <div class="fields">
+      <div class="field"><label for="poDate">Дата полного погашения (по графику без досрочек)</label><input id="poDate" type="date" value="2027-03-10" min="2026-10-25" max="2056-10-22"></div>
+      <div class="field"><span class="small muted">Нужно внести</span><div id="poTotal" class="mono" style="font-size:22px;font-weight:600">–</div></div>
+    </div>
+    <p id="poBreak" class="small muted"></p>
+  </div>
+  <div class="flow">
+    <h3>После погашения</h3>
+    <div class="steps">
+      <div class="step"><b>Шаг 1</b>Взять справку о полном погашении</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 2</b>Снять ипотеку: закладной нет, банк сам подаёт в Росреестр – проверить выписку ЕГРН</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 3</b>Подать в страховую заявление о возврате части премии за неиспользованный срок</div><span class="arrow">→</span>
+      <div class="step"><b>Шаг 4</b>Закрыть ненужные счета и автоплатёж</div>
+    </div>
+  </div>
+</section>
+
+<section id="tablica">
+  <div class="eyebrow">Таблица</div>
+  <h2>График платежей по договору</h2>
+  <p class="small muted">По годам кредита, с ноября по октябрь. Нажмите на год, чтобы раскрыть 12 платежей. Последний платёж – выравнивающий.</p>
+  <div id="years"></div>
+</section>
+
+<footer>
+  <p>Как считали: проценты за каждый день на остаток долга, ставка / 365 или / 366 в високосный год; платежи – по п. 7 договора. Расчёт совпадает с первым платежом банка до копейки. Пересчёт графика при досрочке – по формулировкам п. 2 и п. 8; реальный пересчёт банка может немного отличаться.</p>
+  <p>Это разбор текста договора и расчёт, а не финансовая или юридическая консультация.</p>
+</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ===== Расчётное ядро: проценты по фактическим дням (365/366), как в договоре ===== */
+const P = 9170190.00, R = 0.197, S1 = 153431.10, S2 = 104970.98, N = 360;
+const DAY = 86400000;
+const ISSUE = Date.UTC(2026, 9, 23);
+const r2 = x => Math.round(x * 100) / 100;
+const isLeap = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+const D = []; for (let k = 0; k <= N; k++) D.push(Date.UTC(2026, 9 + k, 23));
+function fac(d0, d1) {           // множитель процентов за дни (d0, d1]
+  let s = 0;
+  for (let t = d0 + DAY; t <= d1; t += DAY) s += R / (isLeap(new Date(t).getUTCFullYear()) ? 366 : 365);
+  return s;
+}
+const F = [0]; for (let k = 1; k <= N; k++) F.push(fac(D[k - 1], D[k]));
+const BASE = [0]; for (let k = 1; k <= N; k++) BASE.push(k <= 180 ? S1 : S2);
+const B = new Array(N + 1).fill(0);     // остаток, который базовые платежи k+1..360 гасят ровно в ноль
+for (let k = N - 1; k >= 0; k--) B[k] = (B[k + 1] + BASE[k + 1]) / (1 + F[k + 1]);
+
+/* o: {oneAmt, oneDate(ms), mAmt, mFrom(№ платежа), mode:'term'|'pay', topup:boolean} */
+function simulate(o = {}) {
+  const evMap = new Map();
+  const add = (t, a) => { if (a > 0 && t > ISSUE) evMap.set(t, (evMap.get(t) || 0) + a); };
+  if (o.oneAmt > 0 && o.oneDate) add(o.oneDate, o.oneAmt);
+  if (o.mAmt > 0) for (let k = Math.max(1, o.mFrom || 1); k <= N; k++) add(D[k], o.mAmt);
+  const ev = [...evMap.entries()].sort((a, b) => a[0] - b[0]);
+  let ei = 0, bal = P, last = ISSUE, ti = 0, tp = 0, tpre = 0, scale = 1, io = false, firstScale = null;
+  const rows = [];
+  for (let k = 1; k <= N; k++) {
+    const d = D[k]; let pre = 0;
+    while (ei < ev.length && ev[ei][0] < d) {           // досрочка между датами платежа
+      const [pd, a0] = ev[ei++]; if (pd <= last) continue;
+      const acc = r2(bal * fac(last, pd)); const a = Math.min(a0, bal + acc);
+      ti += acc; tp += a; tpre += a; pre += a; bal = r2(bal - (a - acc)); last = pd; io = true;
+      if (bal <= 0.01) break;
+    }
+    if (bal <= 0.01) { rows.push({ k, d: last, p: 0, i: 0, pr: 0, pre: r2(pre), bal: 0 }); return finish(k, last); }
+    const i = r2(bal * fac(last, d)); let p, freed = 0;
+    if (io) {                                            // после досрочки между датами банк берёт только проценты
+      p = i; io = false;
+      if (o.topup) freed = Math.max(0, r2(BASE[k] * scale) - i);
+    } else {
+      p = r2(BASE[k] * scale);
+      if (p >= bal + i || k === N) p = r2(bal + i);
+    }
+    ti += i; tp += p; bal = r2(bal - (p - i)); last = d;
+    let on = freed;
+    if (ei < ev.length && ev[ei][0] === d) on += ev[ei++][1];
+    on = Math.min(on, bal); tp += on; tpre += on; bal = r2(bal - on);
+    rows.push({ k, d, p, i, pr: r2(p - i), pre: r2(pre + on), bal });
+    if (o.mode === 'pay' && (on > 0 || pre > 0) && bal > 0.01 && k < N) {
+      scale = bal / B[k]; if (firstScale === null) firstScale = scale;
+    }
+    if (bal <= 0.01) return finish(k, d);
+  }
+  return finish(N, D[N]);
+  function finish(k, d) {
+    return { months: k, end: d, interest: ti, paid: tp, prepaid: tpre, rows, firstScale, scale };
+  }
+}
+/* сумма для полного погашения в дату t по базовому графику */
+function payoff(t, rows) {
+  if (t <= ISSUE + DAY) return null;
+  let bal = P, last = ISSUE, k = 0;
+  for (const r of rows) { if (r.d < t) { bal = r.bal; last = r.d; k = r.k; } else break; }
+  const hit = rows.find(r => r.d === t);
+  if (hit) return { onDate: true, regular: hit.p, rest: hit.bal, total: r2(hit.p + hit.bal), lastDate: t, days: 0 };
+  if (k >= N) return null;
+  const acc = r2(bal * fac(last, t));
+  return { onDate: false, principal: bal, acc, total: r2(bal + acc), lastDate: last, days: Math.round((t - last) / DAY) };
+}
+
+
+const nf2 = new Intl.NumberFormat('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2});
+const nf0 = new Intl.NumberFormat('ru-RU', {maximumFractionDigits:0});
+const rub = x => nf2.format(x) + ' ₽';
+const rub0 = x => nf0.format(Math.round(x)) + ' ₽';
+const mln = x => (x/1e6).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' млн ₽';
+const pad = n => String(n).padStart(2,'0');
+const dt = t => { const d=new Date(t); return pad(d.getUTCDate())+'.'+pad(d.getUTCMonth()+1)+'.'+d.getUTCFullYear(); };
+const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const my = t => { const d=new Date(t); return MONTHS[d.getUTCMonth()]+' '+d.getUTCFullYear(); };
+const parseD = s => { if(!s) return null; const [y,m,d]=s.split('-').map(Number); return (y&&m&&d)? Date.UTC(y,m-1,d) : null; };
+const $ = id => document.getElementById(id);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+const base = simulate();
+const baseRows = base.rows;
+const yrsTxt = n => { const y=Math.floor(n/12), m=n%12; return (y? y+' '+(y%10===1&&y%100!==11?'год':(y%10>=2&&y%10<=4&&(y%100<10||y%100>=20)?'года':'лет')):'') + (m? (y?' ':'')+m+' мес.':''); };
+
+/* --- годовые суммы --- */
+const years=[];
+for (let y=0;y<30;y++){ const rs=baseRows.slice(y*12,y*12+12); years.push({y:y+1, from:rs[0].d, to:rs[rs.length-1].d, pay:rs.reduce((s,r)=>s+r.p,0), int:rs.reduce((s,r)=>s+r.i,0), pr:rs.reduce((s,r)=>s+r.pr,0), bal:rs[rs.length-1].bal, rows:rs}); }
+
+/* --- вехи --- */
+(function(){
+  const tb=$('milestones'); let html='';
+  for (const y of [1,3,5,10,15,20,25,30]){
+    const rs=baseRows.slice(0,y*12); const paid=rs.reduce((s,r)=>s+r.p,0), int=rs.reduce((s,r)=>s+r.i,0);
+    html+=`<tr><td>${y} ${y===1?'год':(y<5?'года':'лет')}</td><td>${dt(rs[rs.length-1].d)}</td><td>${mln(paid)}</td><td>${mln(int)}</td><td>${mln(rs[rs.length-1].bal)}</td></tr>`;
+  }
+  tb.innerHTML=html;
+  $('f-int').textContent='≈ '+mln(base.interest);
+})();
+
+/* --- сравнение срок / платёж --- */
+(function(){
+  const t=simulate({oneAmt:1e6,oneDate:D[1],mode:'term'}), p=simulate({oneAmt:1e6,oneDate:D[1],mode:'pay'});
+  $('vs-term-save').textContent='≈ '+mln(base.interest-t.interest);
+  $('vs-term-end').textContent=dt(t.end);
+  $('vs-term-int').textContent=mln(t.interest);
+  $('vs-pay-save').textContent='≈ '+mln(base.interest-p.interest);
+  $('vs-pay-p').textContent=rub(S1*p.firstScale);
+  $('vs-pay-p2').textContent=rub(S2*p.firstScale);
+  $('vs-pay-int').textContent=mln(p.interest);
+})();
+
+/* --- когда вносить --- */
+(function(){
+  const dates=[['24.11.2026 – сразу',Date.UTC(2026,10,24)],['01.12.2026',Date.UTC(2026,11,1)],['10.12.2026',Date.UTC(2026,11,10)],['22.12.2026',Date.UTC(2026,11,22)],['23.12.2026 – ждали даты платежа',Date.UTC(2026,11,23)]];
+  const res=dates.map(([l,t])=>[l,base.interest-simulate({oneAmt:1e6,oneDate:t,mode:'term',topup:true}).interest]);
+  const best=res[0][1];
+  $('timing').innerHTML=res.map(([l,s],i)=>`<tr><td>${l}</td><td${i===0?' class="hl"':''}>${mln(s)}</td><td>${i===0?'–':rub0(best-s)}</td></tr>`).join('');
+  const pts=[['в ноябре 2026',1],['через 1 год',12],['через 5 лет',60],['через 10 лет',120],['через 15 лет',180]];
+  $('byyear').innerHTML=pts.map(([l,k])=>{const r=simulate({oneAmt:1e6,oneDate:D[k],mode:'term'});return `<tr><td>${l} (${dt(D[k])})</td><td>${dt(r.end)}</td><td>${mln(base.interest-r.interest)}</td></tr>`}).join('');
+})();
+
+/* --- за 1–3 дня до даты платежа --- */
+(function(){
+  const save = t => base.interest - simulate({oneAmt:1e6,oneDate:t,mode:'term',topup:true}).interest;
+  const onDate = save(D[2]); const bal0 = baseRows[0].bal;
+  let html='';
+  for (const d of [20,21,22]){
+    const t=Date.UTC(2026,11,d);
+    const acc=r2(bal0*fac(D[1],t)), toPr=1e6-acc, pay=r2((bal0-toPr)*fac(t,D[2]));
+    html+=`<tr><td>${dt(t)} – за ${23-d} дн.</td><td>${rub0(acc)}</td><td>${rub0(toPr)}</td><td>${rub0(pay)}</td><td>${rub0(S1-pay)}</td><td class="hl">+ ${rub0(save(t)-onDate)}</td></tr>`;
+  }
+  html+=`<tr><td>${dt(D[2])} – в дату платежа</td><td>0 ₽</td><td>${rub0(1e6)}</td><td>${rub(S1)}</td><td>не нужна</td><td>–</td></tr>`;
+  $('neardate').innerHTML=html;
+})();
+
+/* --- таблица по годам --- */
+(function(){
+  const host=$('years'); const frag=document.createDocumentFragment();
+  for (const y of years){
+    const det=document.createElement('details'); det.className='year';
+    det.innerHTML=`<summary><span class="y">Год ${y.y}</span><span class="s">${dt(y.from)} – ${dt(y.to)}</span><span class="s">проценты ${mln(y.int)} · в долг ${mln(y.pr)} · остаток ${mln(y.bal)}</span></summary>`;
+    det.addEventListener('toggle',()=>{ if(det.open && !det.dataset.done){ det.dataset.done='1';
+      const rows=y.rows.map(r=>`<tr><td>${r.k}</td><td>${dt(r.d)}</td><td>${nf2.format(r.p)}</td><td>${nf2.format(r.i)}</td><td>${nf2.format(r.pr)}</td><td>${nf2.format(r.bal)}</td></tr>`).join('');
+      det.insertAdjacentHTML('beforeend',`<div class="tscroll"><table><thead><tr><th>№</th><th>Дата</th><th>Платёж</th><th>Проценты</th><th>В долг</th><th>Остаток</th></tr></thead><tbody>${rows}</tbody></table></div>`);
+    }});
+    frag.appendChild(det);
+  }
+  host.appendChild(frag);
+})();
+
+/* --- калькулятор --- */
+(function(){
+  const sel=$('mFrom'); let opts='';
+  for (let k=1;k<=360;k++) opts+=`<option value="${k}">№ ${k} · ${dt(D[k])}</option>`;
+  sel.innerHTML=opts;
+})();
+let scen=null;
+function readCalc(){
+  const mode=document.querySelector('input[name=mode]:checked').value;
+  return { oneAmt:Math.max(0,+$('oneAmt').value||0), oneDate:parseD($('oneDate').value), mAmt:Math.max(0,+$('mAmt').value||0), mFrom:+$('mFrom').value||1, mode, topup:$('topup').checked };
+}
+function runCalc(){
+  const o=readCalc(); scen=simulate(o);
+  $('r-end').innerHTML=dt(scen.end)+`<small>${my(scen.end)}</small>`;
+  const less=360-scen.months;
+  $('r-n').innerHTML=scen.months+(less>0?`<small>на ${yrsTxt(less)} меньше</small>`:'<small>как в договоре</small>');
+  $('r-int').textContent=mln(scen.interest);
+  $('r-save').textContent=mln(Math.max(0,base.interest-scen.interest));
+  $('r-pre').textContent=mln(scen.prepaid);
+  if (o.mode==='pay' && scen.firstScale){
+    $('r-pay').innerHTML=rub(S1*scen.firstScale)+`<small>${o.mAmt>0?'после первой досрочки; дальше снижается каждый месяц':'с 23.11.2041 – '+rub(S2*scen.firstScale)}</small>`;
+  } else $('r-pay').innerHTML=rub(S1)+'<small>не меняется</small>';
+  const w=[];
+  const min=S1*0.3;
+  if (o.oneAmt>0 && o.oneAmt<min) w.push('Разовая сумма меньше 30% платежа (≈ 46 029 ₽) – онлайн может не пройти.');
+  if (o.mAmt>0 && o.mAmt<min) w.push('Ежемесячная сумма меньше 30% платежа (≈ 46 029 ₽) – онлайн может не пройти, уточните в банке.');
+  if (o.oneAmt>0 && o.oneDate && o.oneDate<=ISSUE+DAY) w.push('Досрочка возможна со второго дня после выдачи – выберите дату позже 24.10.2026.');
+  if (o.mode==='pay' && o.mAmt>0) w.push('С ежемесячной досрочкой и уменьшением платежа обязательный платёж падает каждый месяц, поэтому общая сумма выплат тоже снижается. Для честного сравнения со «сроком» платите прежние 153 431,10 ₽ + досрочку.');
+  $('warn').hidden=!w.length; $('warn').textContent=w.join(' ');
+  drawBal();
+}
+['oneAmt','oneDate','mAmt','mFrom','topup','mTerm','mPay'].forEach(id=>{ $(id).addEventListener('input',runCalc); $(id).addEventListener('change',runCalc); });
+
+/* --- полное погашение --- */
+function runPayoff(){
+  const t=parseD($('poDate').value); const r=t?payoff(t,baseRows):null;
+  if(!r){ $('poTotal').textContent='–'; $('poBreak').textContent='Выберите дату между 25.10.2026 и 22.10.2056.'; return; }
+  $('poTotal').textContent=rub(r.total);
+  $('poBreak').textContent = r.onDate
+    ? `Это дата платежа: обычный платёж ${rub(r.regular)} + остаток долга после него ${rub(r.rest)}.`
+    : `Остаток долга после платежа ${dt(r.lastDate)}: ${rub(r.principal)} + проценты за ${r.days} дн.: ${rub(r.acc)}. Каждый следующий день добавляет ≈ ${rub0(r.principal*R/365)}.`;
+}
+$('poDate').addEventListener('input',runPayoff); $('poDate').addEventListener('change',runPayoff);
+
+/* --- графики --- */
+let chY=null, chB=null;
+function axisCommon(){
+  const ink=css('--muted'), grid=css('--line');
+  return { ticks:{color:ink,font:{family:css('--f-num').split(',')[0].replace(/"/g,''),size:11}}, grid:{color:grid,drawTicks:false}, border:{display:false} };
+}
+const mlnTick = v => (v/1e6).toLocaleString('ru-RU',{maximumFractionDigits:1})+' млн';
+function drawYears(){
+  if(!window.Chart) return;
+  if(chY) chY.destroy();
+  const ax=axisCommon(), surf=css('--surface');
+  chY=new Chart($('chYears'),{type:'bar',
+    data:{labels:years.map(y=>y.y),datasets:[
+      {label:'Проценты',data:years.map(y=>y.int),backgroundColor:css('--int'),borderColor:surf,borderWidth:{top:1},borderSkipped:'bottom',stack:'s'},
+      {label:'Основной долг',data:years.map(y=>y.pr),backgroundColor:css('--princ'),borderColor:surf,borderWidth:{bottom:1},borderRadius:{topLeft:3,topRight:3},borderSkipped:false,stack:'s'}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:i=>{const y=years[i[0].dataIndex];return `Год ${y.y}: ${dt(y.from)} – ${dt(y.to)}`;},
+        label:c=>` ${c.dataset.label}: ${mln(c.parsed.y)}`,
+        footer:i=>`Платежи за год: ${mln(years[i[0].dataIndex].pay)}`}}},
+      scales:{x:{...ax,stacked:true,grid:{display:false},title:{display:true,text:'год кредита',color:css('--muted'),font:{size:11}}},
+        y:{...ax,stacked:true,ticks:{...ax.ticks,callback:mlnTick,maxTicksLimit:5}}}}});
+}
+function drawBal(){
+  if(!window.Chart||!scen) return;
+  if(chB) chB.destroy();
+  const ax=axisCommon();
+  const labels=[0,...baseRows.map(r=>r.k)];
+  const b=[P,...baseRows.map(r=>r.bal)];
+  const s=[P,...scen.rows.slice(0,N).map(r=>r.bal)]; while(s.length<labels.length) s.push(null);
+  chB=new Chart($('chBal'),{type:'line',
+    data:{labels,datasets:[
+      {label:'По договору',data:b,borderColor:css('--base'),borderDash:[5,4],borderWidth:2,pointRadius:0,tension:0},
+      {label:'С досрочкой',data:s,borderColor:css('--princ'),backgroundColor:css('--princ')+'22',fill:true,borderWidth:2,pointRadius:0,tension:0,spanGaps:false}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:i=>{const k=i[0].dataIndex; return k===0?'Выдача 23.10.2026':`Платёж № ${k} · ${dt(D[k])}`;},
+        label:c=>c.parsed.y==null?null:` ${c.dataset.label}: ${mln(c.parsed.y)}`}}},
+      scales:{x:{...ax,grid:{display:false},ticks:{...ax.ticks,autoSkip:false,maxRotation:0,callback:(v,i)=> i%60===0? (2026+i/12).toFixed(0):''}},
+        y:{...ax,min:0,ticks:{...ax.ticks,callback:mlnTick,maxTicksLimit:5}}}}});
+}
+function redraw(){ drawYears(); drawBal(); }
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw); }catch(e){}
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+runCalc(); runPayoff(); drawYears();
+</script>
+
+</body>
+</html>
