@@ -129,6 +129,7 @@ input[type=number],input[type=date],select{font:500 15px var(--f-num);color:var(
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
 .seg label{flex:1;text-align:center;padding:9px 8px;font-size:14px;cursor:pointer;color:var(--muted)}
 .seg input{position:absolute;opacity:0;pointer-events:none}
+.seg small{display:block;font-size:11.5px;font-weight:400;opacity:.85}
 .seg input:checked + span{color:var(--surface);}
 .seg label:has(input:checked){background:var(--accent);color:var(--surface);font-weight:600}
 .seg label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:-3px}
@@ -181,8 +182,8 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
   <h3>Главное</h3>
   <ol>
     <li>Первые 15 лет платёж почти целиком уходит в проценты. В первом платеже в долг идёт 0 ₽, а за 15 лет из <span class="num">27,6 млн</span> выплат долг уменьшится только на <span class="num">3,1 млн</span>.</li>
-    <li>Поэтому досрочка в первые годы работает очень сильно: <span class="num">1 млн</span> в ноябре 2026 с сокращением срока закрывает кредит в июле 2037 и экономит <span class="num">≈ 25,8 млн</span> процентов.</li>
-    <li>Выбирайте «сокращение срока». Тот же <span class="num">1 млн</span> с уменьшением платежа экономит только <span class="num">≈ 4,1 млн</span>.</li>
+    <li>Поэтому досрочка в первые годы работает очень сильно: <span class="num">1 млн</span> в ноябре 2026 с сокращением срока при прежнем платеже закрывает кредит в июле 2037 и экономит <span class="num">≈ 25,8 млн</span> процентов.</li>
+    <li>Выбирайте «сократить срок»: платёж остаётся прежним – <span class="num">153 431 ₽</span>, а кредит заканчивается раньше. Тот же <span class="num">1 млн</span> с уменьшением платежа экономит только <span class="num">≈ 4,1 млн</span>.</li>
     <li>Вносить – как только появились деньги, не дожидаясь 23-го. Полностью закрыть можно в любой день: остаток долга + проценты за прошедшие дни.</li>
   </ol>
 </div>
@@ -258,15 +259,19 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
 
   <h3>Сократить срок или уменьшить платёж – на примере 1 млн 23.11.2026</h3>
   <div class="vs">
+    <p class="opt"><b>Сократить срок</b> – платёж остаётся прежним, 153 431 ₽ в месяц. Меняется только дата последнего платежа: кредит закончится раньше.</p>
+    <p class="opt"><b>Уменьшить платёж</b> – срок прежний, последний платёж в октябре 2056. Меняется ежемесячный платёж: он становится меньше.</p>
+  </div>
+  <div class="vs">
     <div class="opt best">
-      <div class="eyebrow">Сократить срок</div>
+      <div class="eyebrow">Сократить срок, платёж прежний</div>
       <div class="big good" id="vs-term-save">≈ 25,85 млн</div><div class="small muted">экономия процентов</div>
       <div class="kv"><span>Платёж</span><span>153 431,10 ₽</span></div>
       <div class="kv"><span>Последний платёж</span><span id="vs-term-end">07.2037</span></div>
       <div class="kv"><span>Проценты всего</span><span id="vs-term-int">11,50 млн</span></div>
     </div>
     <div class="opt">
-      <div class="eyebrow">Уменьшить платёж</div>
+      <div class="eyebrow">Уменьшить платёж, срок прежний</div>
       <div class="big" id="vs-pay-save">≈ 4,06 млн</div><div class="small muted">экономия процентов</div>
       <div class="kv"><span>Платёж</span><span id="vs-pay-p">136 699,67 ₽</span></div>
       <div class="kv"><span>с 23.11.2041</span><span id="vs-pay-p2">93 524,05 ₽</span></div>
@@ -287,10 +292,10 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
       <div class="field"><label for="mFrom">Начиная с платежа</label><select id="mFrom"></select></div>
     </div>
     <div class="field">
-      <span class="small muted" id="modeLbl">Что уменьшать</span>
+      <span class="small muted" id="modeLbl">Что делать при досрочке</span>
       <div class="seg" role="radiogroup" aria-labelledby="modeLbl">
-        <label><input type="radio" name="mode" id="mTerm" value="term" checked><span>Срок</span></label>
-        <label><input type="radio" name="mode" id="mPay" value="pay"><span>Платёж</span></label>
+        <label><input type="radio" name="mode" id="mTerm" value="term" checked><span>Сократить срок<small>платёж прежний</small></span></label>
+        <label><input type="radio" name="mode" id="mPay" value="pay"><span>Уменьшить платёж<small>срок прежний</small></span></label>
       </div>
     </div>
     <label class="check"><input type="checkbox" id="topup" checked><span>Если досрочка между датами – разницу в ближайший платёж тоже вносить досрочкой (как будто платите обычную сумму)</span></label>
@@ -315,6 +320,7 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
   <div class="eyebrow">Сценарии</div>
   <h2>10 реальных вариантов досрочки</h2>
   <p class="small muted">Досрочка вносится 23-го, сразу после обычного платежа. Ставка 19,7% весь срок, страховка и комиссии не учтены. «1 млн сразу» – 23.11.2026, «каждый май» – 23 мая.</p>
+  <p class="note">Во всех сценариях, кроме двух с «уменьшить платёж», выбрано <b>«сократить срок»</b>: ежемесячный платёж остаётся прежним – 153 431 ₽, а кредит заканчивается раньше.</p>
   <div class="chart" role="figure" aria-label="Проценты за весь срок по сценариям">
     <h3>Сколько процентов заплатите за весь срок</h3>
     <div class="box" style="height:400px"><canvas id="chScen"></canvas></div>
@@ -337,7 +343,7 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
   <div class="key">
     <h3>Выводы</h3>
     <ol>
-      <li><b>Сокращать срок.</b> 1 млн сразу: срок – экономия <span class="num">25,85 млн</span>, платёж – <span class="num">4,06 млн</span>. Нужен запас – уменьшайте платёж, но платите прежние 153 431 ₽: экономия <span class="num">25,56 млн</span>, кредит закроется всего на 4 месяца позже.</li>
+      <li><b>Сокращать срок, сохраняя платёж.</b> 1 млн сразу: срок – экономия <span class="num">25,85 млн</span>, платёж – <span class="num">4,06 млн</span>. Нужен запас – уменьшайте платёж, но платите прежние 153 431 ₽: экономия <span class="num">25,56 млн</span>, кредит закроется всего на 4 месяца позже.</li>
       <li><b>Даже небольшая доплата сокращает срок вдвое.</b> +5,6 тыс. в месяц – кредит закрыт за 15 лет вместо 30, экономия <span class="num">≈ 17,9 млн</span>. +22 тыс. в месяц – за 10 лет.</li>
       <li><b>Копить до квартала почти ничего не стоит.</b> 50 тыс. каждый месяц и 150 тыс. раз в квартал отличаются на 1 месяц срока и ≈ 0,14 млн процентов. Онлайн-минимум не помеха.</li>
       <li><b>Крупная сумма в начале – самый сильный ход.</b> 1 млн сразу экономит почти столько же, сколько 300 тыс. каждый май на протяжении 9 лет, где досрочно уходит 2,8 млн.</li>
@@ -368,17 +374,17 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
       <tbody id="neardate"></tbody>
     </table>
   </div>
-  <p class="small muted">Срок сокращается, разница в ближайший платёж вносится досрочкой. Вторая операция онлайн тоже должна быть не меньше ≈ 46 тыс. ₽.</p>
+  <p class="small muted">Срок сокращается, платёж прежний; разница в ближайший платёж вносится досрочкой. Вторая операция онлайн тоже должна быть не меньше ≈ 46 тыс. ₽.</p>
   <div class="tscroll">
     <table aria-label="1 млн появился 24.11.2026 – когда внести">
       <thead><tr><th>1 млн появился 24.11.2026, внесли</th><th>Экономия процентов</th><th>Потеря от ожидания</th></tr></thead>
       <tbody id="timing"></tbody>
     </table>
   </div>
-  <p class="small muted">Сравнение при одинаковых деньгах: если досрочка между датами, разница в ближайший платёж тоже вносится досрочкой. Срок сокращается.</p>
+  <p class="small muted">Сравнение при одинаковых деньгах: если досрочка между датами, разница в ближайший платёж тоже вносится досрочкой. Срок сокращается, платёж прежний.</p>
   <div class="tscroll">
     <table aria-label="1 млн в разные годы кредита">
-      <thead><tr><th>1 млн с сокращением срока</th><th>Последний платёж</th><th>Экономия процентов</th></tr></thead>
+      <thead><tr><th>1 млн: срок короче, платёж прежний</th><th>Последний платёж</th><th>Экономия процентов</th></tr></thead>
       <tbody id="byyear"></tbody>
     </table>
   </div>
@@ -577,8 +583,8 @@ function runPlan(plan){
 const monthOf=k=>new Date(D[k]).getUTCMonth()+1;
 const SCEN=[
   {l:'По графику', s:['По графику'], f:()=>null},
-  {l:'1 млн сразу · сократить срок', s:['1 млн сразу','· срок'], f:k=>k===1?{amt:1e6,mode:'term'}:null},
-  {l:'1 млн сразу · уменьшить платёж', s:['1 млн сразу','· платёж'], f:k=>k===1?{amt:1e6,mode:'pay'}:null},
+  {l:'1 млн сразу · сократить срок, платёж прежний', s:['1 млн · срок,','платёж прежний'], f:k=>k===1?{amt:1e6,mode:'term'}:null},
+  {l:'1 млн сразу · уменьшить платёж, срок прежний', s:['1 млн · платёж,','срок прежний'], f:k=>k===1?{amt:1e6,mode:'pay'}:null},
   {l:'1 млн сразу · уменьшить платёж, но платить прежние 153 431 ₽ (разница раз в квартал)', s:['1 млн · платёж,','платить как раньше'],
     f:(k,c)=>{ if(k===1) return {amt:1e6,mode:'pay'}; c.ctx.acc+=S1-c.pay; if(k%3===1&&c.ctx.acc>=46030){const a=c.ctx.acc; c.ctx.acc=0; return {amt:a,mode:'pay'};} return null; }},
   {l:'50 тыс. каждый месяц', s:['50 тыс.','в месяц'], f:()=>({amt:50000,mode:'term'})},
