@@ -173,7 +173,7 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
     <div><dt>Полная стоимость (ПСК)</dt><dd>20,898%<small>39 528 443,92 ₽ сверх долга</small></dd></div>
   </dl>
   <nav class="toc" aria-label="Разделы">
-    <a href="#grafik">График</a><a href="#usloviya">Условия</a><a href="#shema">Схема досрочки</a><a href="#calc">Калькулятор</a><a href="#kogda">Когда вносить</a><a href="#polnoe">Полное погашение</a><a href="#tablica">Таблица платежей</a>
+    <a href="#grafik">График</a><a href="#usloviya">Условия</a><a href="#shema">Схема досрочки</a><a href="#calc">Калькулятор</a><a href="#scenarii">Сценарии</a><a href="#kogda">Когда вносить</a><a href="#polnoe">Полное погашение</a><a href="#tablica">Таблица платежей</a>
   </nav>
 </header>
 
@@ -308,6 +308,43 @@ footer{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;ga
       <div class="legend"><span><i class="sw dash"></i>По договору</span><span><i class="sw line" style="background:var(--princ)"></i>С досрочкой</span></div>
       <div class="box"><canvas id="chBal"></canvas></div>
     </div>
+  </div>
+</section>
+
+<section id="scenarii">
+  <div class="eyebrow">Сценарии</div>
+  <h2>10 реальных вариантов досрочки</h2>
+  <p class="small muted">Досрочка вносится 23-го, сразу после обычного платежа. Ставка 19,7% весь срок, страховка и комиссии не учтены. «1 млн сразу» – 23.11.2026, «каждый май» – 23 мая.</p>
+  <div class="chart" role="figure" aria-label="Проценты за весь срок по сценариям">
+    <h3>Сколько процентов заплатите за весь срок</h3>
+    <div class="box" style="height:400px"><canvas id="chScen"></canvas></div>
+  </div>
+  <div class="tscroll">
+    <table aria-label="Результаты сценариев">
+      <thead><tr><th>Сценарий</th><th>Досрочно всего</th><th>Последний платёж</th><th>Срок</th><th>Проценты</th><th>Экономия</th></tr></thead>
+      <tbody id="scenTable"></tbody>
+    </table>
+  </div>
+  <p class="small muted">В варианте «платить как раньше» в месяц уходят те же 153 431 ₽, просто часть из них оформляется досрочкой – поэтому сумма досрочки такая большая.</p>
+  <h3>Сколько доплачивать, чтобы закрыть кредит за N лет</h3>
+  <div class="tscroll">
+    <table aria-label="Доплата для закрытия за N лет">
+      <thead><tr><th>Цель</th><th>Сверх платежа в месяц</th><th>Последний платёж</th><th>Проценты</th><th>Экономия</th></tr></thead>
+      <tbody id="targetTable"></tbody>
+    </table>
+  </div>
+  <p class="small muted">Суммы меньше онлайн-минимума ≈ 46 тыс. можно копить и вносить раз в квартал или раз в год: 66 тыс. раз в квартал закрывают кредит за 10 лет и 1 месяц, 70 тыс. раз в год – за 15 лет и 3 месяца.</p>
+  <div class="key">
+    <h3>Выводы</h3>
+    <ol>
+      <li><b>Сокращать срок.</b> 1 млн сразу: срок – экономия <span class="num">25,85 млн</span>, платёж – <span class="num">4,06 млн</span>. Нужен запас – уменьшайте платёж, но платите прежние 153 431 ₽: экономия <span class="num">25,56 млн</span>, кредит закроется всего на 4 месяца позже.</li>
+      <li><b>Даже небольшая доплата сокращает срок вдвое.</b> +5,6 тыс. в месяц – кредит закрыт за 15 лет вместо 30, экономия <span class="num">≈ 17,9 млн</span>. +22 тыс. в месяц – за 10 лет.</li>
+      <li><b>Копить до квартала почти ничего не стоит.</b> 50 тыс. каждый месяц и 150 тыс. раз в квартал отличаются на 1 месяц срока и ≈ 0,14 млн процентов. Онлайн-минимум не помеха.</li>
+      <li><b>Крупная сумма в начале – самый сильный ход.</b> 1 млн сразу экономит почти столько же, сколько 300 тыс. каждый май на протяжении 9 лет, где досрочно уходит 2,8 млн.</li>
+      <li><b>Сильнее всего – сочетание.</b> 1 млн сразу + 50 тыс. в месяц закрывают кредит в мае 2032, за 5 лет и 7 месяцев. Проценты – 5,3 млн вместо 37,3.</li>
+      <li><b>Как читать экономию.</b> Это рубли разных лет, поэтому цифры такие большие. По сути каждая досрочка – вложение под 19,7% годовых без налога и риска. Пока вклады и облигации дают меньше, гасить выгоднее.</li>
+      <li><b>Не отдавайте последние деньги.</b> Сначала запас на 3–6 платежей (0,46–0,92 млн) на случай болезни, потери работы или ремонта, и только сверх него – в досрочку.</li>
+    </ol>
   </div>
 </section>
 
@@ -524,6 +561,61 @@ for (let y=0;y<30;y++){ const rs=baseRows.slice(y*12,y*12+12); years.push({y:y+1
   $('neardate').innerHTML=html;
 })();
 
+/* --- сценарии --- */
+function runPlan(plan){
+  let bal=P,ti=0,tp=0,pre=0,scale=1,firstPay=null; const ctx={acc:0};
+  for(let k=1;k<=N;k++){
+    const i=r2(bal*F[k]); let p=r2(BASE[k]*scale); if(p>=bal+i||k===N) p=r2(bal+i);
+    ti+=i; tp+=p; bal=r2(bal-(p-i));
+    if(bal>0.01){ const q=plan(k,{pay:p,ctx});
+      if(q&&q.amt>0){ const a=Math.min(q.amt,bal); bal=r2(bal-a); tp+=a; pre+=a;
+        if(q.mode==='pay'&&bal>0.01&&k<N){ scale=bal/B[k]; if(firstPay===null) firstPay=S1*scale; } } }
+    if(bal<=0.01) return {months:k,end:D[k],interest:ti,paid:tp,pre,firstPay};
+  }
+  return {months:N,end:D[N],interest:ti,paid:tp,pre,firstPay};
+}
+const monthOf=k=>new Date(D[k]).getUTCMonth()+1;
+const SCEN=[
+  {l:'По графику', s:['По графику'], f:()=>null},
+  {l:'1 млн сразу · сократить срок', s:['1 млн сразу','· срок'], f:k=>k===1?{amt:1e6,mode:'term'}:null},
+  {l:'1 млн сразу · уменьшить платёж', s:['1 млн сразу','· платёж'], f:k=>k===1?{amt:1e6,mode:'pay'}:null},
+  {l:'1 млн сразу · уменьшить платёж, но платить прежние 153 431 ₽ (разница раз в квартал)', s:['1 млн · платёж,','платить как раньше'],
+    f:(k,c)=>{ if(k===1) return {amt:1e6,mode:'pay'}; c.ctx.acc+=S1-c.pay; if(k%3===1&&c.ctx.acc>=46030){const a=c.ctx.acc; c.ctx.acc=0; return {amt:a,mode:'pay'};} return null; }},
+  {l:'50 тыс. каждый месяц', s:['50 тыс.','в месяц'], f:()=>({amt:50000,mode:'term'})},
+  {l:'150 тыс. раз в квартал', s:['150 тыс.','в квартал'], f:k=>k%3===0?{amt:150000,mode:'term'}:null},
+  {l:'300 тыс. каждый май (премия, вычет)', s:['300 тыс.','каждый май'], f:k=>monthOf(k)===5?{amt:300000,mode:'term'}:null},
+  {l:'100 тыс. каждый месяц', s:['100 тыс.','в месяц'], f:()=>({amt:100000,mode:'term'})},
+  {l:'1 млн сразу + 50 тыс. каждый месяц', s:['1 млн +','50 тыс. в месяц'], f:k=>({amt:(k===1?1e6:0)+50000,mode:'term'})},
+  {l:'1 млн сразу + 300 тыс. каждый май', s:['1 млн +','300 тыс. в май'], f:k=>{const a=(k===1?1e6:0)+(monthOf(k)===5?300000:0); return a?{amt:a,mode:'term'}:null;}},
+];
+const scenRes=SCEN.map(s=>({...s, r:runPlan(s.f)}));
+(function(){
+  const b=scenRes[0].r.interest;
+  $('scenTable').innerHTML=scenRes.map((s,i)=>`<tr><td style="white-space:normal;min-width:180px;font-family:var(--f-body)">${s.l}</td><td>${i?mln(s.r.pre):'–'}</td><td>${dt(s.r.end)}</td><td>${yrsTxt(s.r.months)}</td><td>${mln(s.r.interest)}</td><td${i?' class="hl"':''}>${i?mln(b-s.r.interest):'–'}</td></tr>`).join('');
+  let html='';
+  for(const y of [5,7,10,15]){
+    let lo=0,hi=400000; for(let it=0;it<36;it++){const m=(lo+hi)/2; if(runPlan(()=>({amt:m,mode:'term'})).months<=y*12) hi=m; else lo=m;}
+    const extra=Math.ceil(hi/100)*100, r=runPlan(()=>({amt:extra,mode:'term'}));
+    html+=`<tr><td>за ${y} лет</td><td>+ ${rub0(extra)}</td><td>${dt(r.end)}</td><td>${mln(r.interest)}</td><td class="hl">${mln(b-r.interest)}</td></tr>`;
+  }
+  $('targetTable').innerHTML=html;
+})();
+let chS=null;
+function drawScen(){
+  if(!window.Chart) return;
+  if(chS) chS.destroy();
+  const ax=axisCommon();
+  chS=new Chart($('chScen'),{type:'bar',
+    data:{labels:scenRes.map(s=>s.s),datasets:[{label:'Проценты за весь срок',data:scenRes.map(s=>s.r.interest),
+      backgroundColor:scenRes.map((s,i)=>i?css('--int'):css('--base')),borderRadius:{topRight:4,bottomRight:4},borderSkipped:'left',barPercentage:0.75}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:i=>scenRes[i[0].dataIndex].l,
+        label:c=>{const s=scenRes[c.dataIndex]; return [` Проценты: ${mln(s.r.interest)}`,` Последний платёж: ${dt(s.r.end)}`].concat(c.dataIndex?[` Экономия: ${mln(scenRes[0].r.interest-s.r.interest)}`]:[]);}}}},
+      scales:{x:{...ax,min:0,ticks:{...ax.ticks,callback:mlnTick,maxTicksLimit:5}},
+        y:{...ax,grid:{display:false},ticks:{...ax.ticks,color:css('--ink'),font:{family:css('--f-body').split(',')[0].replace(/"/g,''),size:11}}}}}});
+}
+
 /* --- таблица по годам --- */
 (function(){
   const host=$('years'); const frag=document.createDocumentFragment();
@@ -626,11 +718,11 @@ function drawBal(){
       scales:{x:{...ax,grid:{display:false},ticks:{...ax.ticks,autoSkip:false,maxRotation:0,callback:(v,i)=> i%60===0? (2026+i/12).toFixed(0):''}},
         y:{...ax,min:0,ticks:{...ax.ticks,callback:mlnTick,maxTicksLimit:5}}}}});
 }
-function redraw(){ drawYears(); drawBal(); }
+function redraw(){ drawYears(); drawBal(); drawScen(); }
 try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw); }catch(e){}
 new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
-runCalc(); runPayoff(); drawYears();
+runCalc(); runPayoff(); drawYears(); drawScen();
 </script>
 
 </body>
