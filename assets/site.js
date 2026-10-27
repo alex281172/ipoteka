@@ -124,3 +124,34 @@
   function selectOut() { var r = document.createRange(); r.selectNodeContents(out); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
   update();
 })();
+
+/* Чек-лист с выбором: [data-picklist] собирает отмеченные пункты по группам и даёт скопировать список. */
+(function () {
+  document.querySelectorAll('[data-picklist]').forEach(function (root) {
+    var out = root.querySelector('[data-pick-out]'), btn = root.querySelector('[data-pick-copy]');
+    if (!out) return;
+    var initial = out.textContent;
+    function collect() {
+      var res = [];
+      root.querySelectorAll('ul.checklist[data-list]').forEach(function (ul) {
+        var items = [];
+        ul.querySelectorAll('input:checked').forEach(function (b) { var t = b.closest('label').querySelector('b'); if (t) items.push(t.textContent); });
+        if (items.length) res.push((ul.getAttribute('data-group') || '') + ': ' + items.join(', '));
+      });
+      return res;
+    }
+    function update() {
+      var g = collect();
+      out.textContent = g.length ? 'Выбрано. ' + g.join('. ') + '.' : initial;
+      if (btn) btn.hidden = !g.length;
+    }
+    root.addEventListener('change', update);
+    if (btn) btn.addEventListener('click', function () {
+      var t = 'Санузел, что нужно. ' + collect().join('. ') + '.';
+      var done = function () { btn.textContent = 'Скопировано'; setTimeout(function () { btn.textContent = 'Скопировать список'; }, 1800); };
+      var sel = function () { var r = document.createRange(); r.selectNodeContents(out); var s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, sel); else sel();
+    });
+    update();
+  });
+})();

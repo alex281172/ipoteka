@@ -340,3 +340,19 @@ td.l{text-align:left}
 .opts3 ul{font-size:13.5px}
 .opts3 .kv span:last-child{font-family:var(--f-body)}
 .opts3 .thick span{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+
+/* чек-лист санузла */
+details.grp{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+details.grp > summary{cursor:pointer;list-style:none;padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+details.grp > summary::-webkit-details-marker{display:none}
+details.grp > summary .g{font-weight:600}
+details.grp > summary .g::before{content:"›";display:inline-block;margin-right:8px;color:var(--muted);transition:transform .15s}
+details.grp[open] > summary .g::before{transform:rotate(90deg)}
+details.grp > .checklist{border:none;border-top:1px solid var(--line);border-radius:0 0 12px 12px}
+#sanuzel{gap:10px}
+.filelink{display:inline-flex;align-items:center;gap:8px;font-weight:500;text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 13px;color:var(--accent)}
+.filelink::before{content:"PDF";font:600 11px var(--f-num);color:var(--surface);background:var(--accent);border-radius:4px;padding:2px 5px}
+.filelink:hover{border-color:var(--accent)}
+#sanuzel .checklist input:checked + span{color:var(--ink)}
+#sanuzel .checklist input:checked + span b{text-decoration:none;color:var(--accent)}
+#sanuzel .checklist input{accent-color:var(--accent)}
