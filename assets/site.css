@@ -356,3 +356,5 @@ details.grp > .checklist{border:none;border-top:1px solid var(--line);border-rad
 #sanuzel .checklist input:checked + span{color:var(--ink)}
 #sanuzel .checklist input:checked + span b{text-decoration:none;color:var(--accent)}
 #sanuzel .checklist input{accent-color:var(--accent)}
+#razmery-sanuzla .kv span:last-child{white-space:nowrap}
+#razmery-sanuzla .kv span:first-child{min-width:0}
