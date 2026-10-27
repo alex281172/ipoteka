@@ -330,3 +330,13 @@ dialog.lb[open]{display:grid;grid-template-rows:minmax(0,1fr) auto}
 @media (max-width:600px){.zmap .svgbox.wide{display:none}.zmap .svgbox.tall{display:block}}
 td.l{text-align:left}
 @media (max-width:520px){td.l{min-width:120px}}
+
+/* варианты перегородки */
+.opts3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.opts3 .panel{gap:8px}
+.opts3 .thick{font:500 13.5px var(--f-num);background:var(--tint);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.opts3 .thick b{font-size:18px;font-weight:600}
+.opts3 h4{margin:4px 0 0;font:600 12px var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.opts3 ul{font-size:13.5px}
+.opts3 .kv span:last-child{font-family:var(--f-body)}
+.opts3 .thick span{font-family:var(--f-body);font-size:13px;color:var(--muted)}
