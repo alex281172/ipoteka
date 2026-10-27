@@ -69,3 +69,58 @@
     if (Math.abs(dx) > 50) show(dx < 0 ? i + 1 : i - 1);
   });
 })();
+
+/* Заметки: фильтр по статусу и счётчики. Кнопки [data-filter] внутри .filters[data-for="<id списка>"]. */
+(function () {
+  document.querySelectorAll('.filters[data-for]').forEach(function (bar) {
+    var list = document.getElementById(bar.getAttribute('data-for'));
+    if (!list) return;
+    var items = list.querySelectorAll('.note');
+    var btns = bar.querySelectorAll('button[data-filter]');
+    btns.forEach(function (b) {
+      var f = b.getAttribute('data-filter'), n = 0;
+      items.forEach(function (it) { if (f === 'all' || it.getAttribute('data-status') === f) n++; });
+      var c = document.createElement('span'); c.className = 'c'; c.textContent = n; b.appendChild(c);
+      b.addEventListener('click', function () {
+        btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        items.forEach(function (it) { it.hidden = !(f === 'all' || it.getAttribute('data-status') === f); });
+      });
+    });
+  });
+})();
+
+/* Палитра: отметки «Нравится» хранятся в этом браузере, итог можно скопировать и отправить. */
+(function () {
+  var boxes = document.querySelectorAll('input[data-fav]');
+  if (!boxes.length) return;
+  var out = document.querySelector('[data-fav-out]'), btn = document.querySelector('[data-fav-copy]');
+  var initial = out ? out.textContent : '';
+  function key(b) { return 'kv:fav:' + b.getAttribute('data-fav'); }
+  function text() {
+    var picked = [];
+    boxes.forEach(function (b) {
+      if (b.checked) {
+        var card = b.closest('.swc'), name = card.querySelector('h3').textContent, ncs = card.querySelector('.ncs span').textContent;
+        picked.push(b.getAttribute('data-fav') + ' – ' + name + ' (' + ncs + ')');
+      }
+    });
+    return picked;
+  }
+  function update() {
+    var p = text();
+    if (out) out.textContent = p.length ? 'Нравятся: ' + p.join('; ') : initial;
+    if (btn) btn.hidden = !p.length;
+  }
+  boxes.forEach(function (b) {
+    try { if (localStorage.getItem(key(b)) === '1') b.checked = true; } catch (e) {}
+    b.addEventListener('change', function () { try { localStorage.setItem(key(b), b.checked ? '1' : '0'); } catch (e) {} update(); });
+  });
+  if (btn) btn.addEventListener('click', function () {
+    var t = 'Оттенки, которые нравятся: ' + text().join('; ');
+    var done = function () { btn.textContent = 'Скопировано'; setTimeout(function () { btn.textContent = 'Скопировать список'; }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { selectOut(); });
+    else selectOut();
+  });
+  function selectOut() { var r = document.createRange(); r.selectNodeContents(out); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+  update();
+})();
