@@ -388,3 +388,8 @@ figure.refph figcaption{font-size:12.5px;color:var(--muted)}
 .note .strip{grid-template-columns:repeat(4,minmax(0,1fr));max-width:420px}
 .palstrip{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;border-radius:8px;overflow:hidden}
 .palstrip i{display:block;height:26px}
+.gallery.plans a.ph{background:#fff;border:1px solid var(--line)}
+.gallery.plans a.ph img{object-fit:contain}
+.egrnwrap{display:flex;flex-direction:column;gap:12px}
+figure.refph.plan1 a.ph{background:#fff;border:1px solid var(--line)}
+figure.refph.plan1 img{max-height:none;object-fit:contain}
