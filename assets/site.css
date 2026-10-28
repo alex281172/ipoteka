@@ -379,3 +379,10 @@ details.grp > .checklist{border:none;border-top:1px solid var(--line);border-rad
 .zmap .svgbox.egrn .m1s{font-size:18px;font-weight:600}
 .zmap .svgbox.egrn .m2{font-size:19px}
 .zmap .svgbox.egrn .m3{font-size:17px}
+.zmap .dgap{stroke:var(--surface);stroke-width:7}
+.zlegend .l-door{border:2px solid var(--ink);border-top:none;border-bottom:none;border-radius:0;width:18px;height:10px;background:none}
+figure.refph{margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+figure.refph a.ph{display:block;border-radius:12px;overflow:hidden;background:var(--line)}
+figure.refph img{display:block;width:100%;height:auto;max-height:620px;object-fit:cover}
+figure.refph figcaption{font-size:12.5px;color:var(--muted)}
+.note .strip{grid-template-columns:repeat(4,minmax(0,1fr));max-width:420px}
