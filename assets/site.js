@@ -230,3 +230,14 @@
     }
   });
 })();
+
+/* Карточка «Гайд» на главной: число советов и роликов из gaid/data.json. */
+(function () {
+  if (document.getElementById('guide')) return;
+  var link = document.querySelector('a.card[href$="gaid/"]');
+  if (!link || !window.fetch) return;
+  fetch(link.getAttribute('href') + 'data.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) {
+    link.querySelectorAll('[data-g-tips]').forEach(function (e) { e.textContent = (d.tips || []).length; });
+    link.querySelectorAll('[data-g-videos]').forEach(function (e) { e.textContent = (d.videos || []).length; });
+  }).catch(function () {});
+})();
