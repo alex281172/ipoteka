@@ -527,3 +527,6 @@ mark{background:var(--chk-bg);color:inherit;border-radius:3px;padding:0 1px;box-
 .gvh h3{font-size:15.5px;flex:1 1 260px;min-width:0}
 .gvr{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13.5px}
 .gvr button{font:600 13px var(--f-body);color:var(--surface);background:var(--accent);border:none;border-radius:999px;padding:6px 13px;cursor:pointer}
+.gch{display:flex;flex-wrap:wrap;gap:5px 6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.gch a{text-decoration:none;color:var(--ink);background:var(--tint);border-radius:999px;padding:3px 9px}
+.gch a b{font:600 11.5px var(--f-num);color:var(--accent);margin-right:2px}
