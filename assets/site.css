@@ -429,3 +429,14 @@ h3.vh{font-size:17px;margin-top:6px}
 .reflinks a.rl span{font:12px var(--f-num);color:var(--muted)}
 .reflinks li p{margin:0;font-size:14px;overflow-wrap:anywhere}
 .reflinks .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+
+/* Схемы для скачивания */
+.dlgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px}
+.dlcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.dlcard figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.dlcard a.ph{display:block;border-radius:8px;overflow:hidden;background:#fff;border:1px solid var(--line);aspect-ratio:480/679}
+.dlcard a.ph img{width:100%;height:100%;object-fit:contain;display:block}
+.dlcard figcaption{font-weight:600;font-size:14px;line-height:1.35}
+.dlrow{display:flex;flex-wrap:wrap;gap:8px}
+.dlrow .filelink{font-size:14px;padding:7px 11px}
+.filelink.png::before{content:"PNG"}
