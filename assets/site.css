@@ -440,3 +440,28 @@ h3.vh{font-size:17px;margin-top:6px}
 .dlrow{display:flex;flex-wrap:wrap;gap:8px}
 .dlrow .filelink{font-size:14px;padding:7px 11px}
 .filelink.png::before{content:"PNG"}
+
+/* Разрез: трап и стояк */
+.sect{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;min-width:0}
+.sect svg{display:block;width:100%;height:auto;max-width:720px;margin:0 auto}
+.sect .s-screed{fill:var(--tint)}
+.sect .s-slab{fill:url(#s-hatch)}
+.sect .s-hb{fill:var(--z-off)}
+.sect .s-hl{stroke:var(--muted);stroke-width:1.2;opacity:.45}
+.sect .s-fill{fill:var(--surface);stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 3}
+.sect .s-floor{stroke:var(--ink);stroke-width:3}
+.sect .s-pipe{fill:var(--surface);stroke:var(--ink);stroke-width:2.5}
+.sect .s-new{fill:var(--z-wet-bg);stroke:var(--z-wet);stroke-width:2.5}
+.sect .s-old{fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:6 4}
+.sect .s-ink{fill:var(--ink)}
+.sect .s-br{stroke:var(--ink);stroke-width:3}
+.sect .s-wallr{fill:var(--line)}
+.sect text{font-family:var(--f-body);font-size:19px;fill:var(--ink)}
+.sect text.s-m{fill:var(--muted)}
+.sect .s-halo{paint-order:stroke;stroke:var(--surface);stroke-width:5px;stroke-linejoin:round}
+.sect .mk circle{fill:var(--accent)}
+.sect .mk text{fill:var(--surface);font:700 17px var(--f-num);text-anchor:middle;dominant-baseline:central}
+.skey{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.skey li{display:flex;gap:9px;align-items:baseline;font-size:14px}
+.skey .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--surface);font:700 12px var(--f-num);display:inline-grid;place-items:center;transform:translateY(5px)}
+.formula.wrap{white-space:normal;line-height:1.5}
