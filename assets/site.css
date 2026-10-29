@@ -465,3 +465,4 @@ h3.vh{font-size:17px;margin-top:6px}
 .skey li{display:flex;gap:9px;align-items:baseline;font-size:14px}
 .skey .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--surface);font:700 12px var(--f-num);display:inline-grid;place-items:center;transform:translateY(5px)}
 .formula.wrap{white-space:normal;line-height:1.5}
+.panel.warnp{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
