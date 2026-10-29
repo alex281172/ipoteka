@@ -155,3 +155,78 @@
     update();
   });
 })();
+
+/* Палитра: нажатие на карточку – цвет на весь экран. Закрыть: крестик, повторное нажатие, Esc. Листать: свайп или стрелки. */
+(function () {
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.palette .swc'));
+  if (!cards.length || typeof HTMLDialogElement === 'undefined') return;
+  var dlg = document.createElement('dialog');
+  dlg.className = 'cv';
+  dlg.setAttribute('aria-label', 'Цвет на весь экран');
+  dlg.innerHTML = '<button class="x" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+    '<div class="cv-info"><span class="n"></span><h2 class="t"></h2><span class="c"></span><p class="d"></p>' +
+    '<span class="h">Нажмите ещё раз, чтобы закрыть · свайп – соседний цвет</span></div>';
+  document.body.appendChild(dlg);
+  var n = dlg.querySelector('.n'), t = dlg.querySelector('.t'), c = dlg.querySelector('.c'), d = dlg.querySelector('.d');
+  if (window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches) dlg.querySelector('.h').textContent = 'Щёлкните ещё раз, чтобы закрыть · стрелки ← → – соседний цвет';
+  var i = 0, swiped = false;
+  function lin(v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+  function show(k) {
+    i = (k + cards.length) % cards.length;
+    var card = cards[i], sw = card.querySelector('.swatch');
+    var rgb = getComputedStyle(sw).backgroundColor, m = (rgb.match(/\d+/g) || [0, 0, 0]).map(Number);
+    var L = 0.2126 * lin(m[0]) + 0.7152 * lin(m[1]) + 0.0722 * lin(m[2]);
+    var hex = '#' + m.slice(0, 3).map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('').toUpperCase();
+    dlg.style.background = rgb;
+    dlg.classList.toggle('dk', (1.05 / (L + 0.05)) > ((L + 0.05) / 0.05));
+    var ncs = card.querySelector('.ncs span'), desc = card.querySelector('.swb p'), fav = card.querySelector('.fav input');
+    n.textContent = (i + 1) + ' из ' + cards.length;
+    t.textContent = card.querySelector('h3').textContent;
+    c.textContent = (ncs ? ncs.textContent + ' · ' : '') + hex + (fav && fav.checked ? ' · ♥ нравится' : '');
+    d.textContent = desc ? desc.textContent : '';
+  }
+  function open(k) {
+    show(k);
+    document.documentElement.classList.add('cv-lock');
+    dlg.showModal();
+    dlg.querySelector('.x').focus();
+  }
+  dlg.addEventListener('close', function () {
+    document.documentElement.classList.remove('cv-lock');
+    var sw = cards[i] && cards[i].querySelector('.swatch');
+    if (sw) sw.focus({ preventScroll: true });
+  });
+  cards.forEach(function (card, k) {
+    var sw = card.querySelector('.swatch');
+    if (sw) {
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('aria-label', 'Открыть на весь экран: ' + card.querySelector('h3').textContent);
+      sw.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(k); }
+      });
+    }
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('.fav')) return;
+      open(k);
+    });
+  });
+  dlg.addEventListener('click', function () {
+    if (swiped) { swiped = false; return; }
+    dlg.close();
+  });
+  dlg.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
+  });
+  var x0 = null, y0 = null;
+  dlg.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  dlg.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      swiped = true; setTimeout(function () { swiped = false; }, 450);
+      show(dx < 0 ? i + 1 : i - 1);
+    }
+  });
+})();
