@@ -12,12 +12,18 @@
 
   function norm(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е'); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function words(s) { return norm(s).split(/[^0-9a-zа-я.\-]+/i).filter(function (w) { return w.length > 0; }); }
+  /* Простая «основа» слова: у русских слов от 5 букв отрезаем конечные гласные, чтобы «розетки» находили «розетка», а «стяжке» – «стяжки». */
+  function stem(w) {
+    if (!/[а-я]/.test(w) || w.length < 5) return w;
+    var b = w.replace(/[аеиоуыэюяйь]+$/, '');
+    return b.length >= 4 ? b : w;
+  }
+  function words(s) { return norm(s).split(/[^0-9a-zа-я.\-]+/i).filter(function (w) { return w.length > 0; }).map(stem); }
   function rx(ws) {
     if (!ws.length) return null;
     var parts = ws.map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/е/g, '[её]'); });
     parts.sort(function (a, b) { return b.length - a.length; });
-    return new RegExp('(' + parts.join('|') + ')', 'gi');
+    return new RegExp('((?:' + parts.join('|') + ')[0-9a-zа-яё]*)', 'gi');
   }
   function hl(s, re) { var e = esc(s); return re ? e.replace(re, '<mark>$1</mark>') : e; }
   function tc(sec) {
@@ -107,8 +113,11 @@
       var n = tips.filter(function (t) { return t.video === v.id; }).length;
       var stTxt = v.status === 'transcript' ? '<span class="chip o">Текст разобран</span>' : '<span class="chip n">По кадрам</span>';
       return '<li class="gvid"><div class="gvh"><h3>' + esc(v.title) + '</h3>' + stTxt + '</div>' +
-        '<p class="small muted">' + esc(v.channel) + ' · добавлен ' + esc(date(v.added)) + '</p>' +
+        '<p class="small muted">' + esc(v.channel) + (v.duration ? ' · ' + esc(v.duration) : '') + ' · добавлен ' + esc(date(v.added)) + '</p>' +
         (v.summary ? '<p class="small">' + esc(v.summary) + '</p>' : '') +
+        (v.chapters && v.chapters.length ? '<div class="gch"><span>Главы:</span>' + v.chapters.map(function (c) {
+          return '<a href="' + esc(yt(v.url, c.t)) + '" target="_blank" rel="noopener"><b>' + tc(c.t) + '</b> ' + esc(c.name) + '</a>';
+        }).join('') + '</div>' : '') +
         '<div class="gvr"><button type="button" data-v="' + esc(v.id) + '">Советы: ' + n + '</button><a href="' + esc(v.url) + '" target="_blank" rel="noopener">Смотреть на YouTube ↗</a></div></li>';
     }).join('');
     vidsList.querySelectorAll('button[data-v]').forEach(function (b) {
@@ -133,6 +142,8 @@
     (data.topics || []).forEach(function (t) { topicName[t.id] = t.name; });
     (data.stages || []).forEach(function (s) { stageName[s.id] = s.name; });
     (data.verdicts || []).forEach(function (v) { verd[v.id] = v; });
+    var vIdx = {}; (data.videos || []).forEach(function (v, k) { vIdx[v.id] = k; });
+    tips.sort(function (a, b) { return (vIdx[b.video] - vIdx[a.video]) || ((a.t || 0) - (b.t || 0)); });
     tips.forEach(function (t) {
       var v = byId[t.video] || {};
       t._h = norm([t.title, t.text, t.for_us, (t.tags || []).join(' '), topicName[t.topic], stageName[t.stage], v.title, v.channel].join(' '));
