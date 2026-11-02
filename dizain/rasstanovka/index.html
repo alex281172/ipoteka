@@ -24,6 +24,8 @@
 .btn.warnb:hover{border-color:var(--warn);color:var(--warn)}
 .btn:disabled{opacity:.45;cursor:default}
 .tabs{display:flex;gap:4px}
+.selbar{background:var(--tint)}
+.selname{font-size:13.5px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #svg{display:block;width:100%;height:min(78vh,880px);touch-action:none;user-select:none;background:var(--surface);cursor:grab}
 #svg.panning{cursor:grabbing}
 .status{display:flex;flex-wrap:wrap;gap:4px 14px;padding:7px 12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
@@ -98,7 +100,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 <div class="hero">
   <div class="eyebrow"><a href="../">Дизайн</a> · расстановка мебели</div>
   <h1>Расстановка мебели</h1>
-  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Перегородки – по чертежу ЕГРН, их тоже можно двигать и удалять. Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
+  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. В «Варианте 1» стоят перегородки по чертежу ЕГРН, варианты 2 и 3 – без стен; кнопка «Без перегородок» убирает их одним нажатием. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить». Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
 </div>
 
 <div id="shared" class="banner" hidden>Открыт вариант по ссылке. <button class="btn" id="keepShared">Сохранить его в текущий вариант</button></div>
@@ -109,9 +111,17 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <div class="tabs" role="tablist" aria-label="Варианты">
         <button class="btn" data-var="0">Вариант 1</button><button class="btn" data-var="1">Вариант 2</button><button class="btn" data-var="2">Вариант 3</button>
       </div>
+      <button class="btn" id="bWalls">Без перегородок</button>
       <span class="sp"></span>
       <button class="btn" id="undo" title="Отменить (Ctrl+Z)">↶</button>
       <button class="btn" id="zin" title="Приблизить">+</button><button class="btn" id="zout" title="Отдалить">−</button><button class="btn" id="zfit">Весь план</button>
+    </div>
+    <div class="bar selbar" id="selBar" hidden>
+      <b id="selName" class="selname"></b>
+      <span class="sp"></span>
+      <button class="btn" id="tRot" title="Повернуть (R)">⟳ Повернуть</button>
+      <button class="btn" id="tDup" title="Копия (D)">Копия</button>
+      <button class="btn warnb" id="tDel" title="Удалить (Delete)">✕ Удалить</button>
     </div>
     <svg id="svg" xmlns="http://www.w3.org/2000/svg" aria-label="План квартиры с мебелью">
       <defs>
@@ -236,9 +246,15 @@ function mk(type, name, w, d, x, y, rot, cat) { return { id: 'i' + Math.random()
 function load() {
   var s = null;
   try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  if (!s || !s.vars) s = { cur: 0, vars: [defaultVar(), defaultVar(), defaultVar()], opts: { boxes: 'off', snap: 5 } };
+  if (!s || !s.vars) s = { cur: 0, vars: [defaultVar(), [], []], opts: { boxes: 'off', snap: 5 } };
+  for (var k = 1; k < 3; k++) if (untouched(s.vars[k])) s.vars[k] = [];   // старые сохранения: варианты 2 и 3 – без стен
   return s;
 }
+function untouched(v) {
+  return v && v.length === EGRN.length && v.every(function (it, i) { var p = EGRN[i]; return it.cat === 'wall' && Math.abs(it.x - (p[0] + p[2] / 2)) < 0.01 && Math.abs(it.y - (p[1] + p[3] / 2)) < 0.01 && it.w === p[2] && it.d === p[3]; });
+}
+function hasParts() { return items.some(function (i) { return i.cat === 'wall' && i.name === 'Перегородка'; }); }
+function wallsBtn() { $('bWalls').textContent = hasParts() ? 'Без перегородок' : 'Перегородки по ЕГРН'; }
 function save() { store.cur = cur; store.vars[cur] = items; store.opts = opts; try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 function snapshot() { history.push(JSON.stringify(items)); if (history.length > 60) history.shift(); }
 
@@ -388,8 +404,11 @@ function drawAll() { drawBase(); drawItems(); setVB(); tabs(); }
 /* ---------- Панель свойств ---------- */
 function updatePanel(bad) {
   var box = $('propBox');
+  wallsBtn();
+  $('selBar').hidden = !sel;
   if (!sel) { box.hidden = true; $('stSel').textContent = 'Ничего не выбрано'; return; }
   box.hidden = false;
+  $('selName').textContent = sel.name + ' · ' + sel.w + '×' + sel.d;
   var b = bbox(sel);
   $('propTitle').textContent = sel.name;
   if (document.activeElement !== $('pName')) $('pName').value = sel.name;
@@ -407,6 +426,7 @@ num('pX', function (v) { sel.x = v + ext(sel)[0] / 2; });
 num('pY', function (v) { sel.y = v + ext(sel)[1] / 2; });
 $('pName').addEventListener('input', function () { if (!sel) return; sel.name = this.value || 'Предмет'; save(); drawItems(); });
 $('bRot').onclick = rot; $('bDup').onclick = dup; $('bDel').onclick = del;
+$('tRot').onclick = rot; $('tDup').onclick = dup; $('tDel').onclick = del;
 function rot() { if (!sel) return; snapshot(); sel.rot = (sel.rot + 90) % 360; save(); drawItems(); }
 function dup() { if (!sel) return; snapshot(); var c = JSON.parse(JSON.stringify(sel)); c.id = mk().id; c.x += 20; c.y += 20; items.push(c); sel = c; save(); drawItems(); }
 function del() { if (!sel) return; snapshot(); items.splice(items.indexOf(sel), 1); sel = null; save(); drawItems(); }
@@ -498,6 +518,7 @@ Array.prototype.forEach.call(document.querySelectorAll('[data-var]'), function (
 $('oBoxes').value = opts.boxes; $('oSnap').value = String(opts.snap);
 $('oBoxes').onchange = function () { opts.boxes = this.value; save(); drawBase(); drawItems(); };
 $('oSnap').onchange = function () { opts.snap = +this.value; save(); };
+$('bWalls').onclick = function () { snapshot(); var had = hasParts(); items = items.filter(function (i) { return !(i.cat === 'wall' && i.name === 'Перегородка'); }); if (!had) items = items.concat(defaultVar()); store.vars[cur] = items; if (sel && items.indexOf(sel) < 0) sel = null; save(); drawItems(); };
 $('bParts').onclick = function () { snapshot(); items = items.filter(function (i) { return i.cat !== 'wall' || i.name !== 'Перегородка'; }).concat(defaultVar()); store.vars[cur] = items; sel = null; save(); drawItems(); };
 $('bClear').onclick = function () { if (!confirmClear()) return; snapshot(); items = []; store.vars[cur] = items; sel = null; save(); drawItems(); };
 function confirmClear() { var b = $('bClear'); if (b.dataset.armed) { delete b.dataset.armed; b.textContent = 'Очистить вариант'; return true; } b.dataset.armed = 1; b.textContent = 'Точно очистить?'; setTimeout(function () { delete b.dataset.armed; b.textContent = 'Очистить вариант'; }, 3000); return false; }
