@@ -25,6 +25,10 @@
 .btn:disabled{opacity:.45;cursor:default}
 .tabs{display:flex;gap:4px}
 .selbar{background:var(--tint)}
+#svg.drawing{cursor:crosshair}
+.hd{fill:var(--surface);stroke:var(--accent);stroke-width:2;cursor:pointer}
+.draft rect{fill:#C4C9D1;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 3}
+.draft text{font:600 13px var(--f-num);fill:var(--accent);text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:4px}
 .selname{font-size:13.5px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #svg{display:block;width:100%;height:min(78vh,880px);touch-action:none;user-select:none;background:var(--surface);cursor:grab}
 #svg.panning{cursor:grabbing}
@@ -100,7 +104,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 <div class="hero">
   <div class="eyebrow"><a href="../">Дизайн</a> · расстановка мебели</div>
   <h1>Расстановка мебели</h1>
-  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. В «Варианте 1» стоят перегородки по чертежу ЕГРН, варианты 2 и 3 – без стен; кнопка «Без перегородок» убирает их одним нажатием. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить». Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
+  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. В «Варианте 1» стоят перегородки по чертежу ЕГРН, варианты 2 и 3 – без стен; кнопка «Без перегородок» убирает их одним нажатием. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка». Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
 </div>
 
 <div id="shared" class="banner" hidden>Открыт вариант по ссылке. <button class="btn" id="keepShared">Сохранить его в текущий вариант</button></div>
@@ -111,11 +115,14 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <div class="tabs" role="tablist" aria-label="Варианты">
         <button class="btn" data-var="0">Вариант 1</button><button class="btn" data-var="1">Вариант 2</button><button class="btn" data-var="2">Вариант 3</button>
       </div>
+      <button class="btn" id="bDraw" aria-pressed="false">✏ Перегородка</button>
+      <select id="drawT" class="btn" title="Толщина перегородки" hidden><option value="8">8 см</option><option value="10" selected>10 см</option><option value="12">12 см</option><option value="15">15 см</option></select>
       <button class="btn" id="bWalls">Без перегородок</button>
       <span class="sp"></span>
       <button class="btn" id="undo" title="Отменить (Ctrl+Z)">↶</button>
       <button class="btn" id="zin" title="Приблизить">+</button><button class="btn" id="zout" title="Отдалить">−</button><button class="btn" id="zfit">Весь план</button>
     </div>
+    <div class="bar selbar" id="drawBar" hidden><span class="hint">Ведите по плану от точки до точки – перегородка ляжет ровно и прилипнет к стенам. Двигать план – двумя пальцами или выключите рисование.</span><span class="sp"></span><button class="btn" id="drawOff">Готово</button></div>
     <div class="bar selbar" id="selBar" hidden>
       <b id="selName" class="selname"></b>
       <span class="sp"></span>
@@ -144,8 +151,8 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <h3 id="propTitle">Предмет</h3>
       <div class="prop">
         <label class="full">Название<input type="text" id="pName"></label>
-        <label>Ширина, см<input type="number" id="pW" min="1" max="900" step="1" inputmode="numeric"></label>
-        <label>Глубина, см<input type="number" id="pD" min="1" max="900" step="1" inputmode="numeric"></label>
+        <label><span id="lW">Ширина, см</span><input type="number" id="pW" min="1" max="900" step="1" inputmode="numeric"></label>
+        <label><span id="lD">Глубина, см</span><input type="number" id="pD" min="1" max="900" step="1" inputmode="numeric"></label>
         <label>От левой стены, см<input type="number" id="pX" step="1" inputmode="numeric"></label>
         <label>От стены со входом, см<input type="number" id="pY" step="1" inputmode="numeric"></label>
       </div>
@@ -388,6 +395,8 @@ function drawItems() {
 function short(s, w, fs) { var max = Math.floor(w / (fs * 0.58)); return s.length > max ? s.slice(0, Math.max(3, max - 1)) + '…' : s; }
 function drawClr() {
   var L = $('lClr'); L.textContent = '';
+  if (draft) { drawDraft(L); return; }
+  if (sel) drawHandles(L);
   if (!sel || sel.type === 'door') return;
   var c = clearances(sel), b = c.b;
   c.list.forEach(function (q) {
@@ -409,6 +418,7 @@ function updatePanel(bad) {
   if (!sel) { box.hidden = true; $('stSel').textContent = 'Ничего не выбрано'; return; }
   box.hidden = false;
   $('selName').textContent = sel.name + ' · ' + sel.w + '×' + sel.d;
+  var isW = sel.cat === 'wall'; $('lW').textContent = isW ? 'Длина, см' : 'Ширина, см'; $('lD').textContent = isW ? 'Толщина, см' : 'Глубина, см';
   var b = bbox(sel);
   $('propTitle').textContent = sel.name;
   if (document.activeElement !== $('pName')) $('pName').value = sel.name;
@@ -455,16 +465,56 @@ function add(c) {
   if (window.innerWidth < 900) document.querySelector('.board').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+
+/* ---------- Ручки размера и рисование перегородок ---------- */
+var draw = false, draft = null, rs = null;
+function px(n) { return n * vb[2] / Math.max(1, svg.clientWidth); }      // n экранных пикселей → см
+function snapVal(v, axis, except) {
+  var st = +opts.snap || 1, r = Math.round(v / st) * st, tol = px(10), best = tol;
+  obstacles(except).forEach(function (o) { [axis === 'x' ? o.r[0] : o.r[1], axis === 'x' ? o.r[2] : o.r[3]].forEach(function (e) { var d = Math.abs(v - e); if (d < best) { best = d; r = e; } }); });
+  return r;
+}
+function drawHandles(L) {
+  var b = bbox(sel), s = px(11), isW = sel.cat === 'wall', e = ext(sel), horiz = e[0] >= e[1];
+  var hs = [['l', b[0], (b[1] + b[3]) / 2], ['r', b[2], (b[1] + b[3]) / 2], ['t', (b[0] + b[2]) / 2, b[1]], ['b', (b[0] + b[2]) / 2, b[3]]];
+  if (isW) hs = hs.filter(function (h) { return horiz ? (h[0] === 'l' || h[0] === 'r') : (h[0] === 't' || h[0] === 'b'); });
+  hs.forEach(function (h) { el('rect', { 'class': 'hd', 'data-h': h[0], x: h[1] - s / 2, y: h[2] - s / 2, width: s, height: s, rx: s / 4, 'stroke-width': px(2) }, L); });
+}
+function drawDraft(L) {
+  var d = draftRect(); if (!d) return;
+  var g = el('g', { 'class': 'draft' }, L);
+  el('rect', { x: d.r[0], y: d.r[1], width: d.r[2] - d.r[0], height: d.r[3] - d.r[1] }, g);
+  el('text', { x: (d.r[0] + d.r[2]) / 2 + (d.horiz ? 0 : px(28)), y: (d.r[1] + d.r[3]) / 2 - (d.horiz ? px(10) : -px(4)), style: 'font-size:' + px(14) + 'px;stroke-width:' + px(4) + 'px' }, g, d.len + ' см');
+}
+function draftRect() {
+  if (!draft) return null;
+  var th = +$('drawT').value || 10, dx = draft.x1 - draft.x0, dy = draft.y1 - draft.y0, horiz = Math.abs(dx) >= Math.abs(dy);
+  var a, b, r;
+  if (horiz) { a = Math.min(draft.x0, draft.x1); b = Math.max(draft.x0, draft.x1); r = [a, draft.y0 - th / 2, b, draft.y0 + th / 2]; }
+  else { a = Math.min(draft.y0, draft.y1); b = Math.max(draft.y0, draft.y1); r = [draft.x0 - th / 2, a, draft.x0 + th / 2, b]; }
+  return { r: r, horiz: horiz, len: Math.round(b - a), th: th };
+}
+function setDraw(on) {
+  draw = on; draft = null; $('bDraw').classList.toggle('on', on); $('bDraw').setAttribute('aria-pressed', on);
+  $('drawT').hidden = !on; $('drawBar').hidden = !on; svg.classList.toggle('drawing', on);
+  if (on) sel = null; drawItems();
+}
+$('bDraw').onclick = function () { setDraw(!draw); };
+$('drawOff').onclick = function () { setDraw(false); };
+
 /* ---------- Мышь и пальцы ---------- */
 function pt(ev) { var p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
 var drag = null, pan = null, pointers = {};
 svg.addEventListener('pointerdown', function (ev) {
   pointers[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
+  if (Object.keys(pointers).length === 2) { drag = null; rs = null; draft = null; pan = { pinch: dist(), vb: vb.slice() }; drawClr(); return; }
+  var p = pt(ev), h = ev.target.getAttribute && ev.target.getAttribute('data-h');
+  if (h && sel) { snapshot(); rs = { h: h, b: bbox(sel), moved: false }; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); return; }
+  if (draw) { var x = snapVal(p.x, 'x', null), y = snapVal(p.y, 'y', null); draft = { x0: x, y0: y, x1: x, y1: y }; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); drawClr(); return; }
   var g = ev.target.closest && ev.target.closest('.it');
-  if (Object.keys(pointers).length === 2) { drag = null; pan = { pinch: dist(), vb: vb.slice() }; return; }
   if (g) {
     var it = items.filter(function (i) { return i.id === g.getAttribute('data-id'); })[0];
-    var p = pt(ev); snapshot(); sel = it; drag = { it: it, dx: p.x - it.x, dy: p.y - it.y, moved: false };
+    snapshot(); sel = it; drag = { it: it, dx: p.x - it.x, dy: p.y - it.y, moved: false };
     svg.setPointerCapture(ev.pointerId); drawItems(); ev.preventDefault();
   } else {
     if (sel) { sel = null; drawItems(); }
@@ -473,11 +523,37 @@ svg.addEventListener('pointerdown', function (ev) {
 });
 svg.addEventListener('pointermove', function (ev) {
   if (pointers[ev.pointerId]) pointers[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
-  if (drag) { var p = pt(ev); snapMove(drag.it, p.x - drag.dx, p.y - drag.dy); drag.moved = true; drawItems(); }
+  if (rs) { resizeTo(pt(ev)); rs.moved = true; drawItems(); }
+  else if (draft) { var q = pt(ev), horiz = Math.abs(q.x - draft.x0) >= Math.abs(q.y - draft.y0); draft.x1 = horiz ? snapVal(q.x, 'x', null) : draft.x0; draft.y1 = horiz ? draft.y0 : snapVal(q.y, 'y', null); if (horiz) draft.y1 = draft.y0; else draft.x1 = draft.x0; drawClr(); }
+  else if (drag) { var p = pt(ev); snapMove(drag.it, p.x - drag.dx, p.y - drag.dy); drag.moved = true; drawItems(); }
   else if (pan && pan.pinch) { var k = pan.pinch / dist(); zoomTo(pan.vb, k); }
   else if (pan) { var s = pan.vb[2] / svg.clientWidth; vb[0] = pan.vb[0] - (ev.clientX - pan.x) * s; vb[1] = pan.vb[1] - (ev.clientY - pan.y) * s; setVB(); }
 });
-function end(ev) { delete pointers[ev.pointerId]; if (drag) { if (!drag.moved) history.pop(); save(); } drag = null; pan = null; svg.classList.remove('panning'); }
+function end(ev) {
+  delete pointers[ev.pointerId];
+  if (drag) { if (!drag.moved) history.pop(); save(); }
+  if (rs) { if (!rs.moved) history.pop(); save(); }
+  if (draft) {
+    var d = draftRect();
+    if (d && d.len >= 10) {
+      snapshot();
+      var it = mk('wall', 'Перегородка', d.len, d.th, (d.r[0] + d.r[2]) / 2, (d.r[1] + d.r[3]) / 2, d.horiz ? 0 : 90, 'wall');
+      items.push(it); save();
+    }
+    draft = null; drawItems();
+  }
+  drag = null; rs = null; pan = null; svg.classList.remove('panning');
+}
+function resizeTo(p) {
+  var b = rs.b.slice(), min = 5;
+  if (rs.h === 'l') b[0] = Math.min(snapVal(p.x, 'x', sel), b[2] - min);
+  if (rs.h === 'r') b[2] = Math.max(snapVal(p.x, 'x', sel), b[0] + min);
+  if (rs.h === 't') b[1] = Math.min(snapVal(p.y, 'y', sel), b[3] - min);
+  if (rs.h === 'b') b[3] = Math.max(snapVal(p.y, 'y', sel), b[1] + min);
+  var bw = Math.round(b[2] - b[0]), bh = Math.round(b[3] - b[1]), turned = ((sel.rot % 180) + 180) % 180 === 90;
+  if (turned) { sel.w = bh; sel.d = bw; } else { sel.w = bw; sel.d = bh; }
+  sel.x = b[0] + bw / 2; sel.y = b[1] + bh / 2;
+}
 svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
 function dist() { var p = Object.keys(pointers).map(function (k) { return pointers[k]; }); return p.length < 2 ? 1 : Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y) || 1; }
 svg.addEventListener('wheel', function (ev) { ev.preventDefault(); var p = pt(ev); zoomAt(p, ev.deltaY > 0 ? 1.12 : 1 / 1.12); }, { passive: false });
@@ -488,6 +564,7 @@ function setVB() {
   if (!isFinite(r) || r <= 0) r = VB0[2] / VB0[3];
   vb[3] = vb[2] / r;
   svg.setAttribute('viewBox', vb.join(' '));
+  if (sel || draft) drawClr();
 }
 function fit() { var r = svg.clientWidth / Math.max(1, svg.clientHeight), w = VB0[2], h = VB0[3]; if (w / h < r) w = h * r; vb = [VB0[0] - (w - VB0[2]) / 2, VB0[1], w, w / r]; setVB(); }
 $('zin').onclick = function () { zoomAt({ x: vb[0] + vb[2] / 2, y: vb[1] + vb[3] / 2 }, 1 / 1.25); };
@@ -499,6 +576,7 @@ document.addEventListener('keydown', function (ev) {
   var tag = (ev.target.tagName || '').toLowerCase();
   if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); undo(); return; }
+  if (ev.key === 'Escape' && draw) { setDraw(false); return; }
   if (!sel) return;
   var st = ev.shiftKey ? 10 : 1, k = ev.key;
   if (k === 'Delete' || k === 'Backspace') { ev.preventDefault(); del(); }
