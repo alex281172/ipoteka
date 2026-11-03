@@ -266,6 +266,7 @@ var CAT = [
     ['desk', 'Стол Mijia ET119W-C', 120, 60, 'table'], ['desk', 'Стол Mijia ET119W-C', 140, 70, 'table'], ['box', 'Рабочий стол', 120, 60, 'table'], ['arm', 'Кресло офисное', 60, 60, 'sit'], ['box', 'Тумба офисная', 40, 50, 'store']]],
   ['Люди', [
     ['pstand', 'Мужчина стоя', 50, 30, 'person'], ['pstand', 'Женщина стоя', 44, 28, 'person'],
+    ['pstand', 'Мужчина стоя, руки согнуты', 56, 56, 'person'], ['pstand', 'Женщина стоя, руки согнуты', 50, 50, 'person'],
     ['psit', 'Мужчина сидя', 55, 75, 'person'], ['psit', 'Женщина сидя', 50, 70, 'person'],
     ['plie', 'Мужчина лёжа', 55, 185, 'person'], ['plie', 'Женщина лёжа', 50, 170, 'person']]],
   ['Спорт', [
@@ -497,11 +498,19 @@ function person(g, it, w, d) {
   function E(cx, cy, rx, ry, cls, fill) { el('ellipse', { 'class': cls || sk, cx: cx, cy: cy, rx: rx, ry: ry, fill: fill || '' }, g); }
   function Rr(x, y, ww, hh, r) { el('rect', { 'class': sk, x: x, y: y, width: ww, height: hh, rx: r }, g); }
   if (it.type === 'pstand') {
-    var hy = 0, R0 = Math.min(w * 0.21, d * 0.36);
-    E(0, 0, hw, hd * (fem ? 0.78 : 0.82));                                        // плечи
-    if (fem) E(0, hy - R0 * 0.35, R0 * 1.12, R0 * 1.25, 'person-h', hr);          // волосы
-    E(0, hy, R0, R0 * 1.08);                                                        // голова
-    el('path', { 'class': sk, d: 'M' + (-R0 * 0.22) + ',' + (hy + R0 * 0.95) + ' L0,' + (hy + R0 * 1.35) + ' L' + (R0 * 0.22) + ',' + (hy + R0 * 0.95) + ' Z' }, g); // нос
+    var bd = Math.min(d, w * 0.6), arms = d - bd > 10, aw = w * 0.13, cy = arms ? -hd + bd / 2 : 0, bw = arms ? hw - aw * 0.7 : hw;
+    if (arms) {                                                                    // предплечья вперёд, локти у корпуса
+      [-1, 1].forEach(function (s) {
+        var ax = s * (hw - aw / 2);
+        Rr(ax - aw / 2, cy - aw / 2, aw, hd - cy - aw * 0.4, aw / 2);
+        E(ax, hd - aw * 0.55, aw * 0.6, aw * 0.6);                                 // кисть
+      });
+    }
+    var R0 = Math.min(w * 0.21, bd * 0.36);
+    E(0, cy, bw, bd / 2 * (fem ? 0.78 : 0.82));                                   // плечи
+    if (fem) E(0, cy - R0 * 0.35, R0 * 1.12, R0 * 1.25, 'person-h', hr);          // волосы
+    E(0, cy, R0, R0 * 1.08);                                                        // голова
+    el('path', { 'class': sk, d: 'M' + (-R0 * 0.22) + ',' + (cy + R0 * 0.95) + ' L0,' + (cy + R0 * 1.35) + ' L' + (R0 * 0.22) + ',' + (cy + R0 * 0.95) + ' Z' }, g); // нос
   } else if (it.type === 'psit') {
     var sy = -hd + d * 0.24, R1 = w * 0.19, tw = w * (fem ? 0.27 : 0.3), gap = w * 0.04;
     Rr(-gap / 2 - tw, sy, tw, hd - sy - 2, tw / 2); Rr(gap / 2, sy, tw, hd - sy - 2, tw / 2);          // бёдра до колен
