@@ -12,6 +12,13 @@
 <link rel="stylesheet" href="../../assets/site.css">
 <style>
 .wrap.wide{max-width:1180px}
+body.locked .wrap{display:none}
+.gate{display:none}
+body.locked .gate{display:flex;min-height:80vh;align-items:center;justify-content:center}
+.gatebox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px;width:min(340px,100%)}
+.gatebox input{font:600 18px var(--f-num);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;letter-spacing:.12em}
+.gatebox .btn{padding:10px;font-size:15px}
+#gateM{color:var(--warn);min-height:1.2em;margin:0}
 .wide > header, .wide > .hero, .wide > footer{max-width:760px;width:100%}
 .pl{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}
 @media (max-width:900px){.pl{grid-template-columns:1fr}#svg{height:auto;aspect-ratio:860/1120;max-height:85vh}}
@@ -112,7 +119,17 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 }
 </style>
 </head>
-<body>
+<body class="locked">
+<div id="gate" class="gate" role="dialog" aria-modal="true" aria-labelledby="gateT">
+  <form id="gateF" class="gatebox" autocomplete="off">
+    <h2 id="gateT">Расстановка мебели</h2>
+    <p class="muted small">Страница редактирования закрыта паролем.</p>
+    <input type="password" id="gateP" inputmode="numeric" autocomplete="current-password" placeholder="Пароль" aria-label="Пароль" required>
+    <button class="btn on" type="submit" id="gateB">Открыть</button>
+    <p class="small" id="gateM" role="alert"></p>
+    <p class="small"><a href="../#obmer">← План по обмеру</a></p>
+  </form>
+</div>
 <div class="wrap wide">
 <header class="site">
   <a class="brand" href="../../"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 12h7M14 12h7M12 3v5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Новая квартира</a>
@@ -225,6 +242,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <div class="row">
         <button class="btn" id="bParts">Восстановить перегородки ЕГРН</button>
         <button class="btn warnb" id="bClear">Очистить вариант</button>
+        <button class="btn" id="bLogout" title="Закрыть страницу паролем на этом устройстве">Закрыть паролем</button>
       </div>
       <p class="hint" id="shareMsg"></p>
     </div>
@@ -236,6 +254,33 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 </footer>
 </div>
 
+<script>
+/* Пароль на странице: проверка в браузере по хешу PBKDF2 – защита от случайных правок, а не от взлома */
+(function () {
+  var H = 'd78644491c7af05d52f9b720d542bd5d175df86c757a01fdc78da1993264fe75', K = 'rasstanovka-auth';
+  function open() { document.body.classList.remove('locked'); setTimeout(function () { var z = document.getElementById('zfit'); if (z && z.onclick) z.onclick(); }, 30); }
+  function hex(b) { return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
+  function hash(pw) {
+    var e = new TextEncoder();
+    return crypto.subtle.importKey('raw', e.encode(pw), 'PBKDF2', false, ['deriveBits']).then(function (k) {
+      return crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: e.encode('ipoteka-rasstanovka-v1'), iterations: 200000 }, k, 256);
+    }).then(hex);
+  }
+  var ok = false; try { ok = localStorage.getItem(K) === H; } catch (e) {}
+  if (ok) open(); else setTimeout(function () { var i = document.getElementById('gateP'); if (i) i.focus(); }, 50);
+  document.getElementById('gateF').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var m = document.getElementById('gateM'), b = document.getElementById('gateB'), pw = document.getElementById('gateP').value;
+    if (!window.crypto || !crypto.subtle) { m.textContent = 'Браузер не поддерживает проверку пароля.'; return; }
+    b.disabled = true; m.textContent = '';
+    hash(pw).then(function (h) {
+      if (h === H) { try { localStorage.setItem(K, H); } catch (e) {} open(); }
+      else { m.textContent = 'Неверный пароль'; document.getElementById('gateP').select(); }
+    }).catch(function () { m.textContent = 'Не получилось проверить пароль.'; }).then(function () { b.disabled = false; });
+  });
+  document.getElementById('bLogout').addEventListener('click', function () { try { localStorage.removeItem(K); } catch (e) {} location.reload(); });
+})();
+</script>
 <script>
 (function () {
 'use strict';
