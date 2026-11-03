@@ -25,6 +25,9 @@
 .btn:disabled{opacity:.45;cursor:default}
 .tabs{display:flex;gap:4px}
 .selbar{background:var(--tint)}
+.grp{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:9px;padding:2px 2px 2px 8px;font-size:12.5px;color:var(--muted)}
+.grp span{margin-right:6px}
+.grp .btn{border:0;padding:4px 9px;border-radius:7px}
 #svg.drawing{cursor:crosshair}
 .hd{fill:var(--surface);stroke:var(--accent);stroke-width:2;cursor:pointer}
 .draft rect{fill:#C4C9D1;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 3}
@@ -104,7 +107,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 <div class="hero">
   <div class="eyebrow"><a href="../">Дизайн</a> · расстановка мебели</div>
   <h1>Расстановка мебели</h1>
-  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. В «Варианте 1» стоят перегородки по чертежу ЕГРН, варианты 2 и 3 – без стен; кнопка «Без перегородок» убирает их одним нажатием. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка». Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
+  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Переключатели вверху показывают или прячут перегородки по чертежу ЕГРН и нарисованные вами – отдельно друг от друга; спрятанные не удаляются. В «Варианте 1» перегородки ЕГРН включены, в вариантах 2 и 3 – выключены. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка». Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
 </div>
 
 <div id="shared" class="banner" hidden>Открыт вариант по ссылке. <button class="btn" id="keepShared">Сохранить его в текущий вариант</button></div>
@@ -117,7 +120,8 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       </div>
       <button class="btn" id="bDraw" aria-pressed="false">✏ Перегородка</button>
       <select id="drawT" class="btn" title="Толщина перегородки" hidden><option value="8">8 см</option><option value="10" selected>10 см</option><option value="12">12 см</option><option value="15">15 см</option></select>
-      <button class="btn" id="bWalls">Без перегородок</button>
+      <span class="grp" role="group" aria-label="Перегородки по ЕГРН"><span>Перегородки ЕГРН</span><button class="btn" data-vis="egrn" data-on="1">С</button><button class="btn" data-vis="egrn" data-on="0">Без</button></span>
+      <span class="grp" role="group" aria-label="Нарисованные перегородки"><span>Нарисованные</span><button class="btn" data-vis="user" data-on="1">С</button><button class="btn" data-vis="user" data-on="0">Без</button></span>
       <span class="sp"></span>
       <button class="btn" id="undo" title="Отменить (Ctrl+Z)">↶</button>
       <button class="btn" id="zin" title="Приблизить">+</button><button class="btn" id="zout" title="Отдалить">−</button><button class="btn" id="zfit">Весь план</button>
@@ -185,7 +189,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
         <input type="file" id="fImport" accept="application/json,.json" hidden>
       </div>
       <div class="row">
-        <button class="btn" id="bParts">Перегородки по ЕГРН</button>
+        <button class="btn" id="bParts">Восстановить перегородки ЕГРН</button>
         <button class="btn warnb" id="bClear">Очистить вариант</button>
       </div>
       <p class="hint" id="shareMsg"></p>
@@ -246,23 +250,30 @@ var store = load();
 var cur = store.cur || 0;
 var items = store.vars[cur];
 var opts = store.opts;
+var vis = store.vis[cur];
 var sel = null, history = [], vb = VB0.slice();
 
-function defaultVar() { return EGRN.map(function (p, i) { return mk('wall', 'Перегородка', p[2], p[3], p[0] + p[2] / 2, p[1] + p[3] / 2, 0, 'wall'); }); }
+function defaultVar() { return EGRN.map(function (p, i) { var it = mk('wall', 'Перегородка', p[2], p[3], p[0] + p[2] / 2, p[1] + p[3] / 2, 0, 'wall'); it.src = 'egrn'; return it; }); }
+function isEgrnPos(it) { return EGRN.some(function (p) { return Math.abs(it.x - (p[0] + p[2] / 2)) < 0.01 && Math.abs(it.y - (p[1] + p[3] / 2)) < 0.01 && it.w === p[2] && it.d === p[3]; }); }
 function mk(type, name, w, d, x, y, rot, cat) { return { id: 'i' + Math.random().toString(36).slice(2, 9), type: type, name: name, w: w, d: d, x: x, y: y, rot: rot || 0, cat: cat }; }
 function load() {
   var s = null;
   try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  if (!s || !s.vars) s = { cur: 0, vars: [defaultVar(), [], []], opts: { boxes: 'off', snap: 5 } };
-  for (var k = 1; k < 3; k++) if (untouched(s.vars[k])) s.vars[k] = [];   // старые сохранения: варианты 2 и 3 – без стен
+  var fresh = !s || !s.vars;
+  if (fresh) s = { cur: 0, vars: [[], [], []], opts: { boxes: 'off', snap: 5 } };
+  if (!s.vis) s.vis = [{ egrn: 1, user: 1 }, { egrn: 0, user: 1 }, { egrn: 0, user: 1 }];
+  s.vars.forEach(function (v, k) {   // перегородки помечаем: из ЕГРН или нарисованные
+    v.forEach(function (it) { if (it.cat === 'wall' && it.name === 'Перегородка' && !it.src) it.src = isEgrnPos(it) ? 'egrn' : 'user'; });
+    if (!v.some(function (it) { return it.src === 'egrn'; })) { s.vars[k] = v.concat(defaultVar()); if (!(fresh && k === 0)) s.vis[k].egrn = 0; }
+  });
   return s;
 }
 function untouched(v) {
   return v && v.length === EGRN.length && v.every(function (it, i) { var p = EGRN[i]; return it.cat === 'wall' && Math.abs(it.x - (p[0] + p[2] / 2)) < 0.01 && Math.abs(it.y - (p[1] + p[3] / 2)) < 0.01 && it.w === p[2] && it.d === p[3]; });
 }
-function hasParts() { return items.some(function (i) { return i.cat === 'wall' && i.name === 'Перегородка'; }); }
-function wallsBtn() { $('bWalls').textContent = hasParts() ? 'Без перегородок' : 'Перегородки по ЕГРН'; }
-function save() { store.cur = cur; store.vars[cur] = items; store.opts = opts; try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+function shown(it) { return !it.src || vis[it.src]; }
+function visBtns() { Array.prototype.forEach.call(document.querySelectorAll('[data-vis]'), function (b) { var on = !!vis[b.getAttribute('data-vis')] === (b.getAttribute('data-on') === '1'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); }
+function save() { store.cur = cur; store.vars[cur] = items; store.vis[cur] = vis; store.opts = opts; try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 function snapshot() { history.push(JSON.stringify(items)); if (history.length > 60) history.shift(); }
 
 /* ---------- Геометрия ---------- */
@@ -272,7 +283,7 @@ function ov(a, b) { return a[0] < b[2] - 0.01 && a[2] > b[0] + 0.01 && a[1] < b[
 function obstacles(except) {
   var o = WALLR.map(function (r) { return { n: 'стена', r: r }; }).concat(FIXED);
   if (opts.boxes === 'on') o = o.concat(BOXES);
-  items.forEach(function (it) { if (it !== except && it.type !== 'door') o.push({ n: it.name, r: bbox(it), it: it }); });
+  items.forEach(function (it) { if (it !== except && it.type !== 'door' && shown(it)) o.push({ n: it.name, r: bbox(it), it: it }); });
   return o;
 }
 function insideFlat(b) {   // всё ли внутри контура квартиры
@@ -373,9 +384,9 @@ function glyph(g, it, w, d) {
 function drawItems() {
   var L = $('lItems'); L.textContent = '';
   var bad = {};
-  items.forEach(function (it) { if (conflicts(it).length) bad[it.id] = 1; });
+  items.forEach(function (it) { if (shown(it) && conflicts(it).length) bad[it.id] = 1; });
   // перегородки снизу, остальное сверху, выбранный – последним
-  var order = items.slice().sort(function (a, b) { return (b.cat === 'wall') - (a.cat === 'wall') || (a === sel) - (b === sel); });
+  var order = items.filter(shown).sort(function (a, b) { return (b.cat === 'wall') - (a.cat === 'wall') || (a === sel) - (b === sel); });
   order.forEach(function (it) {
     var g = el('g', { 'class': 'it' + (it.cat === 'wall' ? ' wallit' : '') + (it === sel ? ' sel' : '') + (bad[it.id] ? ' bad' : ''), 'data-id': it.id, transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + it.rot + ')' }, L);
     if (it.type === 'round') el('ellipse', { 'class': 'b', cx: 0, cy: 0, rx: it.w / 2, ry: it.d / 2, fill: FILL[it.cat] }, g);
@@ -425,7 +436,7 @@ function drawAll() { drawBase(); drawItems(); setVB(); tabs(); }
 /* ---------- Панель свойств ---------- */
 function updatePanel(bad) {
   var box = $('propBox');
-  wallsBtn();
+  visBtns();
   $('selBar').hidden = !sel;
   if (!sel) { box.hidden = true; $('stSel').textContent = 'Ничего не выбрано'; return; }
   box.hidden = false;
@@ -473,6 +484,7 @@ function add(c) {
   var n = items.filter(function (i) { return Math.abs(i.x - cx) < 40 && Math.abs(i.y - cy) < 40; }).length;
   cx += n * 15; cy += n * 15;
   var it = mk(c[0], c[1], c[2], c[3], cx, cy, 0, c[4]);
+  if (c[1] === 'Перегородка') { it.src = 'user'; vis.user = 1; }
   snapMove(it, cx, cy); items.push(it); sel = it; save(); drawItems();
   if (window.innerWidth < 900) document.querySelector('.board').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -549,7 +561,7 @@ function end(ev) {
     var d = draftRect();
     if (d && d.len >= 10) {
       snapshot();
-      var it = mk('wall', 'Перегородка', d.len, d.th, (d.r[0] + d.r[2]) / 2, (d.r[1] + d.r[3]) / 2, d.horiz ? 0 : 90, 'wall');
+      var it = mk('wall', 'Перегородка', d.len, d.th, (d.r[0] + d.r[2]) / 2, (d.r[1] + d.r[3]) / 2, d.horiz ? 0 : 90, 'wall'); it.src = 'user'; vis.user = 1;
       items.push(it); save();
     }
     draft = null; drawItems();
@@ -603,22 +615,24 @@ $('undo').onclick = undo;
 /* ---------- Варианты, опции, обмен ---------- */
 function tabs() { Array.prototype.forEach.call(document.querySelectorAll('[data-var]'), function (b) { b.classList.toggle('on', +b.getAttribute('data-var') === cur); b.setAttribute('aria-selected', +b.getAttribute('data-var') === cur); }); }
 Array.prototype.forEach.call(document.querySelectorAll('[data-var]'), function (b) {
-  b.onclick = function () { save(); cur = +b.getAttribute('data-var'); items = store.vars[cur]; sel = null; history = []; save(); drawItems(); tabs(); };
+  b.onclick = function () { save(); cur = +b.getAttribute('data-var'); items = store.vars[cur]; vis = store.vis[cur]; sel = null; history = []; save(); drawItems(); tabs(); };
 });
 $('oBoxes').value = opts.boxes; $('oSnap').value = String(opts.snap);
 $('oBoxes').onchange = function () { opts.boxes = this.value; save(); drawBase(); drawItems(); };
 $('oSnap').onchange = function () { opts.snap = +this.value; save(); };
-$('bWalls').onclick = function () { snapshot(); var had = hasParts(); items = items.filter(function (i) { return !(i.cat === 'wall' && i.name === 'Перегородка'); }); if (!had) items = items.concat(defaultVar()); store.vars[cur] = items; if (sel && items.indexOf(sel) < 0) sel = null; save(); drawItems(); };
-$('bParts').onclick = function () { snapshot(); items = items.filter(function (i) { return i.cat !== 'wall' || i.name !== 'Перегородка'; }).concat(defaultVar()); store.vars[cur] = items; sel = null; save(); drawItems(); };
+Array.prototype.forEach.call(document.querySelectorAll('[data-vis]'), function (b) {
+  b.onclick = function () { vis[b.getAttribute('data-vis')] = b.getAttribute('data-on') === '1' ? 1 : 0; if (sel && !shown(sel)) sel = null; save(); drawItems(); };
+});
+$('bParts').onclick = function () { snapshot(); items = items.filter(function (i) { return i.src !== 'egrn'; }).concat(defaultVar()); store.vars[cur] = items; vis.egrn = 1; sel = null; save(); drawItems(); };
 $('bClear').onclick = function () { if (!confirmClear()) return; snapshot(); items = []; store.vars[cur] = items; sel = null; save(); drawItems(); };
 function confirmClear() { var b = $('bClear'); if (b.dataset.armed) { delete b.dataset.armed; b.textContent = 'Очистить вариант'; return true; } b.dataset.armed = 1; b.textContent = 'Точно очистить?'; setTimeout(function () { delete b.dataset.armed; b.textContent = 'Очистить вариант'; }, 3000); return false; }
 
-function pack() { return items.map(function (i) { return [i.type, i.name, i.w, i.d, Math.round(i.x * 10) / 10, Math.round(i.y * 10) / 10, i.rot, i.cat]; }); }
-function unpack(a) { return a.map(function (r) { return mk(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]); }); }
+function pack() { return items.map(function (i) { return [i.type, i.name, i.w, i.d, Math.round(i.x * 10) / 10, Math.round(i.y * 10) / 10, i.rot, i.cat, i.src || 0]; }); }
+function unpack(a) { var v = a.map(function (r) { var it = mk(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]); if (r[8]) it.src = r[8]; else if (it.cat === 'wall' && it.name === 'Перегородка') it.src = isEgrnPos(it) ? 'egrn' : 'user'; return it; }); if (!v.some(function (i) { return i.src === 'egrn'; })) v = v.concat(defaultVar()); return v; }
 function b64e(s) { return btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
 function b64d(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return decodeURIComponent(escape(atob(s))); }
 $('bShare').onclick = function () {
-  var url = location.href.split('#')[0] + '#v=' + b64e(JSON.stringify({ i: pack(), b: opts.boxes }));
+  var url = location.href.split('#')[0] + '#v=' + b64e(JSON.stringify({ i: pack(), b: opts.boxes, v: vis }));
   var msg = $('shareMsg');
   function ok() { msg.textContent = 'Ссылка скопирована – по ней откроется эта расстановка.'; }
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, function () { msg.textContent = url; });
@@ -626,18 +640,18 @@ $('bShare').onclick = function () {
 };
 var shared = null;
 if (/^#v=/.test(location.hash)) {
-  try { var o = JSON.parse(b64d(location.hash.slice(3))); shared = unpack(o.i); if (o.b) opts.boxes = o.b; } catch (e) { shared = null; }
+  try { var o = JSON.parse(b64d(location.hash.slice(3))); shared = unpack(o.i); if (o.b) opts.boxes = o.b; if (o.v) { vis = { egrn: o.v.egrn ? 1 : 0, user: o.v.user ? 1 : 0 }; } } catch (e) { shared = null; }
   if (shared) { items = shared; $('shared').hidden = false; }
 }
-$('keepShared').onclick = function () { store.vars[cur] = items; save(); $('shared').hidden = true; history = []; location.hash = ''; };
+$('keepShared').onclick = function () { store.vars[cur] = items; store.vis[cur] = vis; save(); $('shared').hidden = true; history = []; location.hash = ''; };
 $('bExport').onclick = function () {
-  var blob = new Blob([JSON.stringify({ plan: 'obmer-2026-11-02', items: pack(), boxes: opts.boxes }, null, 1)], { type: 'application/json' });
+  var blob = new Blob([JSON.stringify({ plan: 'obmer-2026-11-02', items: pack(), boxes: opts.boxes, vis: vis }, null, 1)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rasstanovka-variant-' + (cur + 1) + '.json'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
 };
 $('bImport').onclick = function () { $('fImport').click(); };
 $('fImport').onchange = function () {
   var f = this.files[0]; if (!f) return; var r = new FileReader();
-  r.onload = function () { try { var o = JSON.parse(r.result); snapshot(); items = unpack(o.items); store.vars[cur] = items; if (o.boxes) opts.boxes = o.boxes; sel = null; save(); drawAll(); $('shareMsg').textContent = 'Файл открыт в «Вариант ' + (cur + 1) + '».'; } catch (e) { $('shareMsg').textContent = 'Не получилось прочитать файл.'; } };
+  r.onload = function () { try { var o = JSON.parse(r.result); snapshot(); items = unpack(o.items); store.vars[cur] = items; if (o.boxes) opts.boxes = o.boxes; if (o.vis) { vis.egrn = o.vis.egrn ? 1 : 0; vis.user = o.vis.user ? 1 : 0; } sel = null; save(); drawAll(); $('shareMsg').textContent = 'Файл открыт в «Вариант ' + (cur + 1) + '».'; } catch (e) { $('shareMsg').textContent = 'Не получилось прочитать файл.'; } };
   r.readAsText(f); this.value = '';
 };
 $('bPrint').onclick = function () {
