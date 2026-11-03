@@ -90,6 +90,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 .it.sel rect.b,.it.sel ellipse.b,.it.sel path.b{stroke:var(--accent);stroke-width:2.6}
 .it.bad rect.b,.it.bad ellipse.b,.it.bad path.b{stroke:var(--warn);stroke-width:2.6;stroke-dasharray:6 3}
 .it.wallit rect.b{fill:#C4C9D1;stroke:var(--ink)}
+.it.wallit rect.b.kor{fill:rgba(140,149,166,.18);stroke:var(--ink);stroke-width:1.6}
 .it-t{font:600 11px var(--f-body);fill:var(--ink);text-anchor:middle;pointer-events:none}
 .it-s{font:500 9.5px var(--f-num);fill:var(--muted);text-anchor:middle;pointer-events:none}
 .clr line{stroke:var(--accent);stroke-width:1.2}
@@ -213,6 +214,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <div class="row">
         <button class="btn" id="bShare">Ссылка</button>
         <button class="btn" id="bPdf">Скачать PDF</button>
+        <button class="btn" id="bJpg">Скачать JPEG</button>
         <button class="btn" id="bPrint">Печать 1:50</button>
         <button class="btn" id="bExport">Файл</button>
         <button class="btn" id="bImport">Открыть файл</button>
@@ -263,7 +265,7 @@ var CAT = [
   ['Спорт', [
     ['tread', 'Дорожка Runway PRO-X', 148, 74, 'sport']]],
   ['Конструкции', [
-    ['wall', 'Перегородка', 100, 10, 'wall'], ['slat', 'Декоративная перегородка (рейки)', 120, 6, 'deco'], ['glass', 'Стеклянная перегородка', 120, 4, 'deco'], ['door', 'Дверь 80', 80, 80, 'door'], ['door', 'Дверь 70', 70, 70, 'door'], ['box', 'Колонна, короб', 30, 30, 'wall']]]
+    ['wall', 'Перегородка', 100, 10, 'wall'], ['slat', 'Декоративная перегородка (рейки)', 120, 6, 'deco'], ['glass', 'Стеклянная перегородка', 120, 4, 'deco'], ['door', 'Дверь 80', 80, 80, 'door'], ['door', 'Дверь 70', 70, 70, 'door'], ['kor', 'Короб', 60, 40, 'wall'], ['kor', 'Колонна', 30, 30, 'wall']]]
 ];
 var FILL = { deco: '#E8D5B5', sport: '#E2EFD9', sleep: '#DCE6F7', store: '#EFE6D6', sit: '#E4DDF3', table: '#F3E3CF', kitchen: '#DDEDE3', wet: '#D7EEF2', wall: '#C4C9D1', door: 'none' };
 
@@ -303,6 +305,7 @@ function load() {
 function untouched(v) {
   return v && v.length === EGRN.length && v.every(function (it, i) { var p = EGRN[i]; return it.cat === 'wall' && Math.abs(it.x - (p[0] + p[2] / 2)) < 0.01 && Math.abs(it.y - (p[1] + p[3] / 2)) < 0.01 && it.w === p[2] && it.d === p[3]; });
 }
+function isKor(it) { return it.type === 'kor' || it.name === 'Колонна, короб'; }
 function shown(it) { return !it.src || vis[it.src]; }
 function visBtns() { Array.prototype.forEach.call(document.querySelectorAll('[data-vis]'), function (b) { var on = !!vis[b.getAttribute('data-vis')] === (b.getAttribute('data-on') === '1'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); }
 function save() { store.cur = cur; store.vars[cur] = items; store.vis[cur] = vis; store.opts = opts; try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
@@ -345,6 +348,7 @@ function conflicts(it) {
   if (!insideFlat([b[0] + 0.5, b[1] + 0.5, b[2] - 0.5, b[3] - 0.5])) out.push('выходит за стены');
   obstacles(it).forEach(function (o) {
     if (!o.it && o.n === 'стена') return;
+    if (isKor(it) && !o.it) return;                                    // короб надевают на шахту
     if (o.it && /^(wall|deco)$/.test(o.it.cat) && /^(wall|deco)$/.test(it.cat)) return;      // стыки перегородок
     if (o.it && (sit(it) && tab(o.it) || tab(it) && sit(o.it))) return; // стул под столом
     if (ov(b, o.r)) out.push(o.n.toLowerCase());
@@ -459,11 +463,17 @@ function drawItems() {
         el('rect', { 'class': 'op' + (it === sel && selOp === i ? ' on' : ''), 'data-op': i, x: a, y: -hd - 12, width: ow, height: it.d + 24 }, g);
       });
     }
+    else if (isKor(it)) el('rect', { 'class': 'b kor', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, fill: 'rgba(140,149,166,.18)' }, g);
     else el('rect', { 'class': 'b', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, rx: it.cat === 'wall' || it.cat === 'deco' ? 0 : 3, fill: it.type === 'glass' ? '#D9ECF5' : FILL[it.cat] || '#eee' }, g);
     glyph(g, it, it.w, it.d);
     var e = ext(it);
-    if (it.cat !== 'wall' && it.type !== 'door' && e[0] >= 34 && e[1] >= 26) {
-      var fs = e[0] < 70 ? 8 : 11;
+    var vert = e[0] < 34 && e[1] >= 50 && e[0] >= 14;          // узкий предмет стоит «вертикально» – подпись вдоль
+    if (vert && it.cat !== 'wall' && it.cat !== 'deco' && it.type !== 'door') {
+      var lab = /^Колонна с /.test(it.name) ? (it.type === 'oven' ? 'Духовка+СВЧ' : it.type === 'fridge' ? 'Холодильник' : it.name) : it.name, vfs = e[0] < 24 ? 7.5 : 9;
+      el('text', { 'class': 'it-t', x: it.x, y: it.y + vfs / 3, style: 'font-size:' + vfs + 'px', transform: 'rotate(-90 ' + it.x + ' ' + it.y + ')' }, L, short(lab, e[1] - 6, vfs));
+    }
+    else if (it.cat !== 'wall' && it.cat !== 'deco' && it.type !== 'door' && e[0] >= 34 && e[1] >= 16) {
+      var fs = e[0] < 70 || e[1] < 26 ? 8 : 11;
       var ty = it.y + (it.type === 'tri' && it.rot === 0 ? e[1] * 0.15 : 0);
       el('text', { 'class': 'it-t', x: it.x, y: ty - (e[1] >= 48 ? 3 : -3), style: 'font-size:' + fs + 'px' }, L, short(/^Колонна с /.test(it.name) && e[0] < 90 ? (it.type === 'oven' ? 'Духовка+СВЧ' : it.type === 'fridge' ? 'Холодильник' : it.name) : it.name, it.type === 'tri' ? e[0] * 0.6 : e[0], fs));
       if (e[1] >= 48 && opts.dims !== 0) el('text', { 'class': 'it-s', x: it.x, y: ty + 11 }, L, it.w + '×' + it.d);
@@ -852,15 +862,19 @@ function buildPDF(jpgs) {
   put('trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF');
   return new Blob(parts, { type: 'application/pdf' });
 }
-$('bPdf').onclick = function () {
-  var btn = this, date = new Date().toLocaleDateString('ru-RU'), vname = 'Вариант ' + (cur + 1);
-  btn.disabled = true; btn.textContent = 'Готовлю PDF…';
+function planPage(date, vname) {
   var plan = '<svg x="19" y="36" width="172" height="224" viewBox="' + VB0.join(' ') + '">' + planSVG() + '</svg>';
   var scale = '<g transform="translate(154 14)"><rect width="40" height="2" fill="none" stroke="#172031" stroke-width=".3"/>' +
     [0, 1, 2, 3].map(function (i) { return i % 2 ? '' : '<rect x="' + i * 10 + '" width="10" height="2" fill="#172031"/>'; }).join('') +
     '<text x="0" y="5.5" style="font:3px sans-serif;fill:#172031">0</text><text x="20" y="5.5" text-anchor="middle" style="font:3px sans-serif;fill:#172031">1</text><text x="40" y="5.5" text-anchor="end" style="font:3px sans-serif;fill:#172031">2 м</text></g>';
   var p1 = pageSVG(head('Расстановка мебели · ' + vname, 'План по обмеру 02.11.2026 · масштаб 1:50 · вход сверху, окна снизу · размеры в см · ' + date) + scale + plan +
     '<text x="16" y="276" style="font:3px sans-serif;fill:#586277">Печатать в масштабе 100% – тогда шкала вверху равна 4 см. Расстановка – для прикидки, окончательно – по дизайн-проекту.</text>');
+  return p1;
+}
+$('bPdf').onclick = function () {
+  var btn = this, date = new Date().toLocaleDateString('ru-RU'), vname = 'Вариант ' + (cur + 1);
+  btn.disabled = true; btn.textContent = 'Готовлю PDF…';
+  var p1 = planPage(date, vname);
   var list = items.filter(function (i) { return shown(i) && !(i.cat === 'wall' && i.src === 'egrn'); }).map(function (i) {
     var bb = bbox(i); return [i.name, i.w + ' × ' + i.d, Math.round(bb[0]) + ' / ' + Math.round(bb[1]), (i.ops && i.ops.length ? i.ops.length + ' проём.' : '') + (i.lock ? ' замок' : '')];
   });
@@ -883,6 +897,16 @@ $('bPdf').onclick = function () {
     $('shareMsg').textContent = 'PDF сохранён: план 1:50 и список мебели.';
   }).catch(function () { $('shareMsg').textContent = 'Не получилось собрать PDF – попробуйте «Печать 1:50» и «Сохранить как PDF».'; })
     .then(function () { btn.disabled = false; btn.textContent = 'Скачать PDF'; });
+};
+
+$('bJpg').onclick = function () {
+  var btn = this; btn.disabled = true; btn.textContent = 'Готовлю JPEG…';
+  rasterize(planPage(new Date().toLocaleDateString('ru-RU'), 'Вариант ' + (cur + 1))).then(function (u) {
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([u], { type: 'image/jpeg' })); a.download = 'rasstanovka-variant-' + (cur + 1) + '.jpg';
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    $('shareMsg').textContent = 'JPEG сохранён: план на листе A4, 300 dpi.';
+  }).catch(function () { $('shareMsg').textContent = 'Не получилось собрать JPEG.'; })
+    .then(function () { btn.disabled = false; btn.textContent = 'Скачать JPEG'; });
 };
 
 drawGrid();
