@@ -246,7 +246,7 @@ var CAT = [
     ['sofa', 'Диван', 220, 95, 'sit'], ['sofa', 'Диван угловой', 250, 160, 'sit'], ['arm', 'Кресло', 80, 85, 'sit'],
     ['box', 'Журнальный стол', 100, 60, 'table'], ['box', 'ТВ-тумба', 180, 40, 'store'], ['box', 'Стеллаж', 80, 35, 'store']]],
   ['Кухня', [
-    ['kitchen', 'Кухня линейная', 300, 60, 'kitchen'], ['fridge', 'Колонна с холодильником', 60, 65, 'kitchen'], ['kitchen', 'Остров', 120, 80, 'kitchen'],
+    ['kitchen', 'Кухня линейная', 300, 60, 'kitchen'], ['kitchen2', 'Кухня линейная, 2 конфорки', 240, 60, 'kitchen'], ['fridge', 'Колонна с холодильником', 60, 65, 'kitchen'], ['oven', 'Колонна с духовкой и СВЧ', 60, 60, 'kitchen'], ['kitchen', 'Остров', 120, 80, 'kitchen'],
     ['box', 'Стол обеденный', 120, 80, 'table'], ['round', 'Стол круглый', 90, 90, 'table'], ['tri', 'Стол треугольный', 110, 95, 'table'], ['box', 'Стул', 45, 50, 'sit']]],
   ['Санузел', [
     ['shower', 'Душ', 90, 120, 'wet'], ['bath', 'Ванна', 170, 75, 'wet'], ['wc', 'Унитаз подвесной', 37, 55, 'wet'],
@@ -411,7 +411,9 @@ function glyph(g, it, w, d) {
   else if (t === 'arm') { el('rect', { 'class': 'gf', x: -hw + 3, y: -hd + 3, width: w - 6, height: Math.min(18, d / 4), rx: 4 }, g); }
   else if (t === 'ward') { el('line', { 'class': 'gl', x1: -hw, y1: -hd, x2: hw, y2: hd }, g); el('line', { 'class': 'gl', x1: hw, y1: -hd, x2: -hw, y2: hd }, g); }
   else if (t === 'kitchen') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 4, x2: hw, y2: hd - 4 }, g); if (w >= 120) { el('rect', { 'class': 'gf', x: -hw + 30, y: -hd + 10, width: 45, height: d - 22, rx: 4 }, g); [0, 1].forEach(function (k) { [0, 1].forEach(function (m) { el('circle', { 'class': 'gl', cx: hw - 60 + k * 22, cy: -hd + 16 + m * 22, r: 7 }, g); }); }); } }
-  else if (t === 'fridge') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 6, x2: hw, y2: hd - 6 }, g); el('text', { 'class': 'it-s', x: 0, y: 4 }, g, 'ХОЛ'); }
+  else if (t === 'kitchen2') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 4, x2: hw, y2: hd - 4 }, g); if (w >= 90) { el('rect', { 'class': 'gf', x: -hw + 30, y: -hd + 10, width: 45, height: d - 22, rx: 4 }, g); [0, 1].forEach(function (m) { el('circle', { 'class': 'gl', cx: hw - 38, cy: -hd + 16 + m * 22, r: 8 }, g); }); } }
+  else if (t === 'oven') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 6, x2: hw, y2: hd - 6 }, g); el('rect', { 'class': 'gf', x: -hw + 8, y: -hd + 8, width: w - 16, height: d - 22, rx: 3 }, g); }
+  else if (t === 'fridge') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 6, x2: hw, y2: hd - 6 }, g); }
   else if (t === 'shower') { el('line', { 'class': 'gl', x1: -hw, y1: -hd, x2: hw, y2: hd }, g); el('line', { 'class': 'gl', x1: hw, y1: -hd, x2: -hw, y2: hd }, g); el('circle', { 'class': 'gf', cx: 0, cy: 0, r: 5 }, g); }
   else if (t === 'bath') { el('rect', { 'class': 'gf', x: -hw + 6, y: -hd + 6, width: w - 12, height: d - 12, rx: Math.min(30, d / 2 - 6) }, g); }
   else if (t === 'wc') { el('rect', { 'class': 'gf', x: -hw + 2, y: -hd, width: w - 4, height: 10 }, g); el('ellipse', { 'class': 'gf', cx: 0, cy: 4, rx: hw - 3, ry: hd - 10 }, g); }
@@ -449,9 +451,9 @@ function drawItems() {
     glyph(g, it, it.w, it.d);
     var e = ext(it);
     if (it.cat !== 'wall' && it.type !== 'door' && e[0] >= 34 && e[1] >= 26) {
-      var fs = e[0] < 70 ? 9 : 11;
+      var fs = e[0] < 70 ? 8 : 11;
       var ty = it.y + (it.type === 'tri' && it.rot === 0 ? e[1] * 0.15 : 0);
-      el('text', { 'class': 'it-t', x: it.x, y: ty - (e[1] >= 48 ? 3 : -3), style: 'font-size:' + fs + 'px' }, L, short(it.name, it.type === 'tri' ? e[0] * 0.6 : e[0], fs));
+      el('text', { 'class': 'it-t', x: it.x, y: ty - (e[1] >= 48 ? 3 : -3), style: 'font-size:' + fs + 'px' }, L, short(/^Колонна с /.test(it.name) && e[0] < 90 ? (it.type === 'oven' ? 'Духовка+СВЧ' : it.type === 'fridge' ? 'Холодильник' : it.name) : it.name, it.type === 'tri' ? e[0] * 0.6 : e[0], fs));
       if (e[1] >= 48 && opts.dims !== 0) el('text', { 'class': 'it-s', x: it.x, y: ty + 11 }, L, it.w + '×' + it.d);
     }
   });
