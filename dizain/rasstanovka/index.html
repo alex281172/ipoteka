@@ -229,11 +229,13 @@ var CAT = [
     ['ward', 'Шкаф в прихожую', 120, 45, 'store'], ['box', 'Обувница', 80, 30, 'store'], ['ward', 'PAX 100', 100, 58, 'store'],
     ['ward', 'Гардеробная секция', 100, 55, 'store'], ['box', 'Банкетка', 80, 35, 'sit']]],
   ['Рабочее место', [
-    ['box', 'Рабочий стол', 120, 60, 'table'], ['arm', 'Кресло офисное', 60, 60, 'sit'], ['box', 'Тумба офисная', 40, 50, 'store']]],
+    ['desk', 'Стол Mijia ET119W-C', 120, 60, 'table'], ['desk', 'Стол Mijia ET119W-C', 140, 70, 'table'], ['box', 'Рабочий стол', 120, 60, 'table'], ['arm', 'Кресло офисное', 60, 60, 'sit'], ['box', 'Тумба офисная', 40, 50, 'store']]],
+  ['Спорт', [
+    ['tread', 'Дорожка Runway PRO-X', 148, 74, 'sport']]],
   ['Конструкции', [
     ['wall', 'Перегородка', 100, 10, 'wall'], ['door', 'Дверь 80', 80, 80, 'door'], ['door', 'Дверь 70', 70, 70, 'door'], ['box', 'Колонна, короб', 30, 30, 'wall']]]
 ];
-var FILL = { sleep: '#DCE6F7', store: '#EFE6D6', sit: '#E4DDF3', table: '#F3E3CF', kitchen: '#DDEDE3', wet: '#D7EEF2', wall: '#C4C9D1', door: 'none' };
+var FILL = { sport: '#E2EFD9', sleep: '#DCE6F7', store: '#EFE6D6', sit: '#E4DDF3', table: '#F3E3CF', kitchen: '#DDEDE3', wet: '#D7EEF2', wall: '#C4C9D1', door: 'none' };
 
 /* ---------- Квартира по обмеру ---------- */
 var INNER = [[0,0],[415,0],[415,381],[618,381],[618,816],[0,816]];
@@ -378,6 +380,8 @@ function glyph(g, it, w, d) {
   else if (t === 'bath') { el('rect', { 'class': 'gf', x: -hw + 6, y: -hd + 6, width: w - 12, height: d - 12, rx: Math.min(30, d / 2 - 6) }, g); }
   else if (t === 'wc') { el('rect', { 'class': 'gf', x: -hw + 2, y: -hd, width: w - 4, height: 10 }, g); el('ellipse', { 'class': 'gf', cx: 0, cy: 4, rx: hw - 3, ry: hd - 10 }, g); }
   else if (t === 'sink') { el('ellipse', { 'class': 'gf', cx: 0, cy: 2, rx: hw - 8, ry: hd - 10 }, g); }
+  else if (t === 'tread') { var bw = Math.min(w - 10, 120), bd = Math.min(d - 10, 47); el('rect', { 'class': 'gf', x: -bw / 2 + Math.min(10, (w - bw) / 2 - 2), y: -bd / 2, width: bw, height: bd, rx: 3 }, g); el('line', { 'class': 'gl', x1: -hw + 6, y1: -hd + 4, x2: -hw + 6, y2: hd - 4 }, g); }
+  else if (t === 'desk') { el('line', { 'class': 'gl', x1: -hw + 6, y1: -hd + 4, x2: -hw + 6, y2: hd - 4 }, g); el('line', { 'class': 'gl', x1: hw - 6, y1: -hd + 4, x2: hw - 6, y2: hd - 4 }, g); el('rect', { 'class': 'gf', x: hw - 22, y: hd - 9, width: 14, height: 5, rx: 1 }, g); }
   else if (t === 'wm') { el('circle', { 'class': 'gf', cx: 0, cy: 3, r: Math.min(hw, hd) - 10 }, g); }
   else if (t === 'door') { el('path', { d: 'M' + (-hw) + ',' + (-hd) + ' L' + (-hw) + ',' + hd + ' A' + w + ',' + d + ' 0 0 0 ' + hw + ',' + (-hd), fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' }, g); el('line', { x1: -hw, y1: -hd, x2: hw, y2: -hd, stroke: 'var(--accent)', 'stroke-width': 3 }, g); }
 }
