@@ -259,9 +259,9 @@ var CAT = [
   ['Спорт', [
     ['tread', 'Дорожка Runway PRO-X', 148, 74, 'sport']]],
   ['Конструкции', [
-    ['wall', 'Перегородка', 100, 10, 'wall'], ['door', 'Дверь 80', 80, 80, 'door'], ['door', 'Дверь 70', 70, 70, 'door'], ['box', 'Колонна, короб', 30, 30, 'wall']]]
+    ['wall', 'Перегородка', 100, 10, 'wall'], ['slat', 'Декоративная перегородка (рейки)', 120, 6, 'deco'], ['glass', 'Стеклянная перегородка', 120, 4, 'deco'], ['door', 'Дверь 80', 80, 80, 'door'], ['door', 'Дверь 70', 70, 70, 'door'], ['box', 'Колонна, короб', 30, 30, 'wall']]]
 ];
-var FILL = { sport: '#E2EFD9', sleep: '#DCE6F7', store: '#EFE6D6', sit: '#E4DDF3', table: '#F3E3CF', kitchen: '#DDEDE3', wet: '#D7EEF2', wall: '#C4C9D1', door: 'none' };
+var FILL = { deco: '#E8D5B5', sport: '#E2EFD9', sleep: '#DCE6F7', store: '#EFE6D6', sit: '#E4DDF3', table: '#F3E3CF', kitchen: '#DDEDE3', wet: '#D7EEF2', wall: '#C4C9D1', door: 'none' };
 
 /* ---------- Квартира по обмеру ---------- */
 var INNER = [[0,0],[415,0],[415,381],[618,381],[618,816],[0,816]];
@@ -335,7 +335,7 @@ function conflicts(it) {
   if (!insideFlat([b[0] + 0.5, b[1] + 0.5, b[2] - 0.5, b[3] - 0.5])) out.push('выходит за стены');
   obstacles(it).forEach(function (o) {
     if (!o.it && o.n === 'стена') return;
-    if (o.it && o.it.cat === 'wall' && it.cat === 'wall') return;      // стыки перегородок
+    if (o.it && /^(wall|deco)$/.test(o.it.cat) && /^(wall|deco)$/.test(it.cat)) return;      // стыки перегородок
     if (o.it && (sit(it) && tab(o.it) || tab(it) && sit(o.it))) return; // стул под столом
     if (ov(b, o.r)) out.push(o.n.toLowerCase());
   });
@@ -411,6 +411,8 @@ function glyph(g, it, w, d) {
   else if (t === 'arm') { el('rect', { 'class': 'gf', x: -hw + 3, y: -hd + 3, width: w - 6, height: Math.min(18, d / 4), rx: 4 }, g); }
   else if (t === 'ward') { el('line', { 'class': 'gl', x1: -hw, y1: -hd, x2: hw, y2: hd }, g); el('line', { 'class': 'gl', x1: hw, y1: -hd, x2: -hw, y2: hd }, g); }
   else if (t === 'kitchen') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 4, x2: hw, y2: hd - 4 }, g); if (w >= 120) { el('rect', { 'class': 'gf', x: -hw + 30, y: -hd + 10, width: 45, height: d - 22, rx: 4 }, g); [0, 1].forEach(function (k) { [0, 1].forEach(function (m) { el('circle', { 'class': 'gl', cx: hw - 60 + k * 22, cy: -hd + 16 + m * 22, r: 7 }, g); }); }); } }
+  else if (t === 'slat') { for (var sx = -hw + 4; sx < hw - 1; sx += 8) el('line', { 'class': 'gl', x1: sx, y1: -hd, x2: sx, y2: hd, style: 'opacity:.8' }, g); }
+  else if (t === 'glass') { el('line', { x1: -hw, y1: 0, x2: hw, y2: 0, stroke: '#2F6FD6', 'stroke-width': 1 }, g); }
   else if (t === 'kitchen2') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 4, x2: hw, y2: hd - 4 }, g); if (w >= 90) { el('rect', { 'class': 'gf', x: -hw + 30, y: -hd + 10, width: 45, height: d - 22, rx: 4 }, g); [0, 1].forEach(function (m) { el('circle', { 'class': 'gl', cx: hw - 38, cy: -hd + 16 + m * 22, r: 8 }, g); }); } }
   else if (t === 'oven') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 6, x2: hw, y2: hd - 6 }, g); el('rect', { 'class': 'gf', x: -hw + 8, y: -hd + 8, width: w - 16, height: d - 22, rx: 3 }, g); }
   else if (t === 'fridge') { el('line', { 'class': 'gl', x1: -hw, y1: hd - 6, x2: hw, y2: hd - 6 }, g); }
@@ -447,7 +449,7 @@ function drawItems() {
         el('rect', { 'class': 'op' + (it === sel && selOp === i ? ' on' : ''), 'data-op': i, x: a, y: -hd - 12, width: ow, height: it.d + 24 }, g);
       });
     }
-    else el('rect', { 'class': 'b', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, rx: it.cat === 'wall' ? 0 : 3, fill: FILL[it.cat] || '#eee' }, g);
+    else el('rect', { 'class': 'b', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, rx: it.cat === 'wall' || it.cat === 'deco' ? 0 : 3, fill: it.type === 'glass' ? '#D9ECF5' : FILL[it.cat] || '#eee' }, g);
     glyph(g, it, it.w, it.d);
     var e = ext(it);
     if (it.cat !== 'wall' && it.type !== 'door' && e[0] >= 34 && e[1] >= 26) {
@@ -593,7 +595,7 @@ function snapVal(v, axis, except) {
 }
 function drawHandles(L) {
   if (sel.lock) return;
-  var b = bbox(sel), s = px(11), isW = sel.cat === 'wall', e = ext(sel), horiz = e[0] >= e[1];
+  var b = bbox(sel), s = px(11), isW = sel.cat === 'wall' || sel.cat === 'deco', e = ext(sel), horiz = e[0] >= e[1];
   var hs = [['l', b[0], (b[1] + b[3]) / 2], ['r', b[2], (b[1] + b[3]) / 2], ['t', (b[0] + b[2]) / 2, b[1]], ['b', (b[0] + b[2]) / 2, b[3]]];
   if (isW) hs = hs.filter(function (h) { return horiz ? (h[0] === 'l' || h[0] === 'r') : (h[0] === 't' || h[0] === 'b'); });
   hs.forEach(function (h) { el('rect', { 'class': 'hd', 'data-h': h[0], x: h[1] - s / 2, y: h[2] - s / 2, width: s, height: s, rx: s / 4, 'stroke-width': px(2) }, L); });
