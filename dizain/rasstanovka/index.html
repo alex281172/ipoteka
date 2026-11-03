@@ -154,7 +154,10 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
         <button class="btn warnb" id="oDel">✕ Проём</button>
       </span>
       <button class="btn lock" id="tLock" aria-pressed="false" title="Зафиксировать размер и положение (L)">🔓 Замок</button>
-      <button class="btn" id="tRot" title="Повернуть (R)">⟳ Повернуть</button>
+      <button class="btn" id="tRotL" title="Повернуть на 15° против часовой ([)">↺ 15°</button>
+      <label class="szl" id="tAngL">Угол<input type="number" id="tAng" step="15" inputmode="numeric"></label>
+      <button class="btn" id="tRotR" title="Повернуть на 15° по часовой (])">↻ 15°</button>
+      <button class="btn" id="tRot" title="Повернуть на 90° (R)">⟳ 90°</button>
       <button class="btn" id="tDup" title="Копия (D)">Копия</button>
       <button class="btn warnb" id="tDel" title="Удалить (Delete)">✕ Удалить</button>
     </div>
@@ -209,6 +212,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       </div>
       <div class="row">
         <button class="btn" id="bShare">Ссылка</button>
+        <button class="btn" id="bPdf">Скачать PDF</button>
         <button class="btn" id="bPrint">Печать 1:50</button>
         <button class="btn" id="bExport">Файл</button>
         <button class="btn" id="bImport">Открыть файл</button>
@@ -305,7 +309,13 @@ function save() { store.cur = cur; store.vars[cur] = items; store.vis[cur] = vis
 function snapshot() { history.push(JSON.stringify(items)); if (history.length > 60) history.shift(); }
 
 /* ---------- Геометрия ---------- */
-function ext(it) { var r = ((it.rot % 180) + 180) % 180 === 90; return r ? [it.d, it.w] : [it.w, it.d]; }
+function ext(it) {
+  var r = ((it.rot % 180) + 180) % 180;
+  if (r === 0) return [it.w, it.d]; if (r === 90) return [it.d, it.w];
+  var a = r * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));   // повёрнутый предмет – по описанному прямоугольнику
+  return [Math.round((it.w * c + it.d * s) * 10) / 10, Math.round((it.w * s + it.d * c) * 10) / 10];
+}
+function freeRot(it) { return it && it.cat !== 'wall' && it.cat !== 'deco'; }
 function bbox(it) { var e = ext(it); return [it.x - e[0] / 2, it.y - e[1] / 2, it.x + e[0] / 2, it.y + e[1] / 2]; }
 function toWorld(it, lx, ly) { var r = (((it.rot % 360) + 360) % 360) * Math.PI / 180, c = Math.round(Math.cos(r)), s = Math.round(Math.sin(r)); return [it.x + lx * c - ly * s, it.y + lx * s + ly * c]; }
 function lrect(it, x1, y1, x2, y2) { var a = toWorld(it, x1, y1), b = toWorld(it, x2, y2); return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1])]; }
@@ -515,7 +525,8 @@ function updatePanel(bad) {
   $('selHint').hidden = !!sel;
   Array.prototype.forEach.call($('selBar').children, function (c) { if (c.id !== 'selHint' && !c.classList.contains('sp')) c.style.display = sel ? '' : 'none'; });
   if (sel) { var lk = !!sel.lock; ['tLock', 'bLock'].forEach(function (id) { $(id).classList.toggle('on', lk); $(id).setAttribute('aria-pressed', lk); $(id).textContent = lk ? '🔒 Замок вкл' : '🔓 Замок'; });
-    ['sW', 'sD', 'pW', 'pD', 'pX', 'pY', 'oW', 'oP'].forEach(function (id) { $(id).disabled = lk; }); ['tRot', 'bRot', 'tDel', 'bDel', 'tOpAdd', 'oSw', 'oDel'].forEach(function (id) { $(id).disabled = lk; }); }
+    ['sW', 'sD', 'pW', 'pD', 'pX', 'pY', 'oW', 'oP', 'tAng'].forEach(function (id) { $(id).disabled = lk; }); ['tRot', 'bRot', 'tDel', 'bDel', 'tOpAdd', 'oSw', 'oDel', 'tRotL', 'tRotR'].forEach(function (id) { $(id).disabled = lk; });
+    var fr = freeRot(sel) && selOp == null; ['tRotL', 'tRotR', 'tAngL'].forEach(function (id) { $(id).style.display = fr ? '' : 'none'; }); if (document.activeElement !== $('tAng')) $('tAng').value = sel.rot; }
   if (sel && (!sel.ops || selOp == null || !sel.ops[selOp])) selOp = null;
   var isPart = sel && sel.cat === 'wall' && sel.name === 'Перегородка', opOn = sel && selOp != null;
   $('tOpAdd').hidden = !isPart || opOn; $('opCtl').hidden = !opOn;
@@ -555,7 +566,11 @@ function delOp() { if (selOp == null || sel.lock) return; snapshot(); sel.ops.sp
 function toggleLock() { if (!sel) return; snapshot(); if (sel.lock) delete sel.lock; else sel.lock = 1; save(); drawItems(); }
 $('tLock').onclick = toggleLock; $('bLock').onclick = toggleLock;
 $('tRot').onclick = rot; $('tDup').onclick = dup; $('tDel').onclick = del;
-function rot() { if (!sel || sel.lock) return; snapshot(); sel.rot = (sel.rot + 90) % 360; save(); drawItems(); }
+function rot() { if (!sel || sel.lock) return; snapshot(); sel.rot = norm360((Math.round(sel.rot / 90) * 90) + 90); save(); drawItems(); }
+function norm360(a) { return ((Math.round(a) % 360) + 360) % 360; }
+function rotBy(d) { if (!freeRot(sel) || sel.lock) return; snapshot(); sel.rot = norm360(sel.rot + d); save(); drawItems(); }
+$('tRotL').onclick = function () { rotBy(-15); }; $('tRotR').onclick = function () { rotBy(15); };
+$('tAng').addEventListener('change', function () { var v = parseFloat(this.value); if (!freeRot(sel) || sel.lock || !isFinite(v)) return; snapshot(); sel.rot = norm360(v); save(); drawItems(); });
 function dup() { if (!sel) return; snapshot(); var c = JSON.parse(JSON.stringify(sel)); c.id = mk().id; delete c.lock; c.x += 20; c.y += 20; items.push(c); sel = c; save(); drawItems(); }
 function del() { if (!sel || sel.lock) return; snapshot(); items.splice(items.indexOf(sel), 1); sel = null; save(); drawItems(); }
 
@@ -594,7 +609,7 @@ function snapVal(v, axis, except) {
   return r;
 }
 function drawHandles(L) {
-  if (sel.lock) return;
+  if (sel.lock || sel.rot % 90) return;   // под углом размеры меняются полями
   var b = bbox(sel), s = px(11), isW = sel.cat === 'wall' || sel.cat === 'deco', e = ext(sel), horiz = e[0] >= e[1];
   var hs = [['l', b[0], (b[1] + b[3]) / 2], ['r', b[2], (b[1] + b[3]) / 2], ['t', (b[0] + b[2]) / 2, b[1]], ['b', (b[0] + b[2]) / 2, b[3]]];
   if (isW) hs = hs.filter(function (h) { return horiz ? (h[0] === 'l' || h[0] === 'r') : (h[0] === 't' || h[0] === 'b'); });
@@ -716,6 +731,8 @@ document.addEventListener('keydown', function (ev) {
   else if (k === 'd' || k === 'D' || k === 'в' || k === 'В') dup();
   else if (k === 'Escape') { sel = null; drawItems(); }
   else if (k === 'l' || k === 'L' || k === 'д' || k === 'Д') toggleLock();
+  else if (k === '[' || k === 'х' || k === 'Х') rotBy(-15);
+  else if (k === ']' || k === 'ъ' || k === 'Ъ') rotBy(15);
   else if (/^Arrow/.test(k) && !sel.lock) { ev.preventDefault(); snapshot(); if (k === 'ArrowLeft') sel.x -= st; if (k === 'ArrowRight') sel.x += st; if (k === 'ArrowUp') sel.y -= st; if (k === 'ArrowDown') sel.y += st; save(); drawItems(); }
 });
 function undo() { if (!history.length) return; items = JSON.parse(history.pop()); store.vars[cur] = items; sel = null; save(); drawItems(); }
@@ -770,6 +787,102 @@ $('bPrint').onclick = function () {
   document.documentElement.style.setProperty('--pw', (VB0[2] * 0.2) + 'mm');
   document.documentElement.style.setProperty('--ph', (VB0[3] * 0.2) + 'mm');
   setTimeout(function () { window.print(); vb = keep; sel = s; setVB(); drawItems(); }, 50);
+};
+
+/* ---------- PDF: план 1:50 на A4 и список мебели ---------- */
+var PX = 2480, PY = 3508;                     // A4 при 300 dpi
+function xmlEsc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function planSVG() {
+  var root = document.documentElement, theme = root.getAttribute('data-theme'); root.setAttribute('data-theme', 'light');   // на бумагу – всегда светлая схема
+  var keepSel = sel, keepOp = selOp; sel = null; selOp = null; drawItems();
+  var src = svg, clone = src.cloneNode(true);
+  var a = src.querySelectorAll('*'), b = clone.querySelectorAll('*');
+  var props = ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'stroke-opacity', 'fill-opacity', 'opacity', 'font-family', 'font-size', 'font-weight', 'text-anchor', 'paint-order', 'stroke-linejoin', 'display'];
+  for (var i = 0; i < a.length; i++) {
+    var cs = getComputedStyle(a[i]);
+    b[i].setAttribute('style', props.map(function (q) { return q + ':' + cs.getPropertyValue(q); }).join(';'));
+    b[i].removeAttribute('class');
+  }
+  ['lGrid', 'lClr'].forEach(function (id) { var n = clone.querySelector('#' + id); if (n) n.textContent = ''; });
+  var inner = clone.innerHTML;
+  if (theme == null) root.removeAttribute('data-theme'); else root.setAttribute('data-theme', theme);
+  sel = keepSel; selOp = keepOp; drawItems();
+  return inner;
+}
+function pageSVG(body) {
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + PX + '" height="' + PY + '" viewBox="0 0 210 297"><rect width="210" height="297" fill="#fff"/>' + body + '</svg>';
+}
+function head(title, sub) {
+  return '<text x="16" y="20" style="font:700 7.2px sans-serif;fill:#172031">' + xmlEsc(title) + '</text>' +
+    '<text x="16" y="26.5" style="font:400 3.4px sans-serif;fill:#586277">' + xmlEsc(sub) + '</text>' +
+    '<line x1="16" y1="30" x2="194" y2="30" stroke="#DAE0E9" stroke-width=".3"/>';
+}
+function rasterize(svgStr) {
+  return new Promise(function (ok, fail) {
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas'); c.width = PX; c.height = PY;
+      var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, PX, PY); x.drawImage(img, 0, 0, PX, PY);
+      var d = c.toDataURL('image/jpeg', 0.9), bin = atob(d.split(',')[1]), u = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+      ok(u);
+    };
+    img.onerror = fail;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+  });
+}
+function buildPDF(jpgs) {
+  var enc = new TextEncoder(), parts = [], len = 0, offs = [];
+  function put(x) { var u = typeof x === 'string' ? enc.encode(x) : x; parts.push(u); len += u.length; }
+  function obj(n, body) { offs[n] = len; put(n + ' 0 obj\n'); body(); put('\nendobj\n'); }
+  var n = jpgs.length, kids = [];
+  for (var i = 0; i < n; i++) kids.push((3 + i * 3) + ' 0 R');
+  put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  obj(1, function () { put('<< /Type /Catalog /Pages 2 0 R >>'); });
+  obj(2, function () { put('<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + n + ' >>'); });
+  jpgs.forEach(function (j, i) {
+    var pg = 3 + i * 3, cn = pg + 1, im = pg + 2, cs = 'q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
+    obj(pg, function () { put('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 ' + im + ' 0 R >> >> /Contents ' + cn + ' 0 R >>'); });
+    obj(cn, function () { put('<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream'); });
+    obj(im, function () { put('<< /Type /XObject /Subtype /Image /Width ' + PX + ' /Height ' + PY + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + j.length + ' >>\nstream\n'); put(j); put('\nendstream'); });
+  });
+  var xref = len, total = 3 + n * 3;
+  put('xref\n0 ' + total + '\n0000000000 65535 f \n');
+  for (var k = 1; k < total; k++) put(String(offs[k]).padStart(10, '0') + ' 00000 n \n');
+  put('trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF');
+  return new Blob(parts, { type: 'application/pdf' });
+}
+$('bPdf').onclick = function () {
+  var btn = this, date = new Date().toLocaleDateString('ru-RU'), vname = 'Вариант ' + (cur + 1);
+  btn.disabled = true; btn.textContent = 'Готовлю PDF…';
+  var plan = '<svg x="19" y="36" width="172" height="224" viewBox="' + VB0.join(' ') + '">' + planSVG() + '</svg>';
+  var scale = '<g transform="translate(154 14)"><rect width="40" height="2" fill="none" stroke="#172031" stroke-width=".3"/>' +
+    [0, 1, 2, 3].map(function (i) { return i % 2 ? '' : '<rect x="' + i * 10 + '" width="10" height="2" fill="#172031"/>'; }).join('') +
+    '<text x="0" y="5.5" style="font:3px sans-serif;fill:#172031">0</text><text x="20" y="5.5" text-anchor="middle" style="font:3px sans-serif;fill:#172031">1</text><text x="40" y="5.5" text-anchor="end" style="font:3px sans-serif;fill:#172031">2 м</text></g>';
+  var p1 = pageSVG(head('Расстановка мебели · ' + vname, 'План по обмеру 02.11.2026 · масштаб 1:50 · вход сверху, окна снизу · размеры в см · ' + date) + scale + plan +
+    '<text x="16" y="276" style="font:3px sans-serif;fill:#586277">Печатать в масштабе 100% – тогда шкала вверху равна 4 см. Расстановка – для прикидки, окончательно – по дизайн-проекту.</text>');
+  var list = items.filter(function (i) { return shown(i) && !(i.cat === 'wall' && i.src === 'egrn'); }).map(function (i) {
+    var bb = bbox(i); return [i.name, i.w + ' × ' + i.d, Math.round(bb[0]) + ' / ' + Math.round(bb[1]), (i.ops && i.ops.length ? i.ops.length + ' проём.' : '') + (i.lock ? ' замок' : '')];
+  });
+  var rows = '', y = 44;
+  rows += '<text x="16" y="40" style="font:600 3.4px sans-serif;fill:#586277">Предмет</text><text x="120" y="40" style="font:600 3.4px sans-serif;fill:#586277">Длина × глубина</text><text x="160" y="40" style="font:600 3.4px sans-serif;fill:#586277">От левой / от входа</text>';
+  list.slice(0, 48).forEach(function (r, k) {
+    rows += '<line x1="16" y1="' + (y - 3.6) + '" x2="194" y2="' + (y - 3.6) + '" stroke="#DAE0E9" stroke-width=".2"/>' +
+      '<text x="16" y="' + (y + 1) + '" style="font:3.4px sans-serif;fill:#172031">' + xmlEsc(r[0] + (r[3] ? ' · ' + r[3].trim() : '')) + '</text>' +
+      '<text x="120" y="' + (y + 1) + '" style="font:3.4px monospace;fill:#172031">' + xmlEsc(r[1]) + '</text>' +
+      '<text x="160" y="' + (y + 1) + '" style="font:3.4px monospace;fill:#172031">' + xmlEsc(r[2]) + '</text>';
+    y += 4.8;
+  });
+  if (list.length > 48) rows += '<text x="16" y="' + (y + 2) + '" style="font:3px sans-serif;fill:#586277">… и ещё ' + (list.length - 48) + '</text>';
+  if (!list.length) rows += '<text x="16" y="48" style="font:3.4px sans-serif;fill:#586277">Мебель пока не добавлена.</text>';
+  var p2 = pageSVG(head('Список мебели · ' + vname, 'Размеры в сантиметрах; положение – левый верхний угол предмета от левой стены и от стены со входом · ' + date) + rows);
+  Promise.all([rasterize(p1), rasterize(p2)]).then(function (j) {
+    var blob = buildPDF(j), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'rasstanovka-variant-' + (cur + 1) + '.pdf';
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    $('shareMsg').textContent = 'PDF сохранён: план 1:50 и список мебели.';
+  }).catch(function () { $('shareMsg').textContent = 'Не получилось собрать PDF – попробуйте «Печать 1:50» и «Сохранить как PDF».'; })
+    .then(function () { btn.disabled = false; btn.textContent = 'Скачать PDF'; });
 };
 
 drawGrid();
