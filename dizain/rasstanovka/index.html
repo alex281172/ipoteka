@@ -32,6 +32,10 @@
 .hd{fill:var(--surface);stroke:var(--accent);stroke-width:2;cursor:pointer}
 .draft rect{fill:#C4C9D1;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 3}
 .draft text{font:600 13px var(--f-num);fill:var(--accent);text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:4px}
+.szl{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted)}
+.szl input{width:64px;font:600 14px var(--f-num);color:var(--ink);background:var(--surface);border:1px solid var(--accent);border-radius:7px;padding:4px 6px}
+.dims line{stroke:#2F4BA8;stroke-width:1}
+.dims text{font:600 12px var(--f-num);fill:#2F4BA8;text-anchor:middle}
 .selname{font-size:13.5px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #svg{display:block;width:100%;height:min(78vh,880px);touch-action:none;user-select:none;background:var(--surface);cursor:grab}
 #svg.panning{cursor:grabbing}
@@ -122,6 +126,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <select id="drawT" class="btn" title="Толщина перегородки" hidden><option value="8">8 см</option><option value="10" selected>10 см</option><option value="12">12 см</option><option value="15">15 см</option></select>
       <span class="grp" role="group" aria-label="Перегородки по ЕГРН"><span>Перегородки ЕГРН</span><button class="btn" data-vis="egrn" data-on="1">С</button><button class="btn" data-vis="egrn" data-on="0">Без</button></span>
       <span class="grp" role="group" aria-label="Нарисованные перегородки"><span>Нарисованные</span><button class="btn" data-vis="user" data-on="1">С</button><button class="btn" data-vis="user" data-on="0">Без</button></span>
+      <span class="grp" role="group" aria-label="Размеры"><span>Размеры</span><button class="btn" data-dims="1">С</button><button class="btn" data-dims="0">Без</button></span>
       <span class="sp"></span>
       <button class="btn" id="undo" title="Отменить (Ctrl+Z)">↶</button>
       <button class="btn" id="zin" title="Приблизить">+</button><button class="btn" id="zout" title="Отдалить">−</button><button class="btn" id="zfit">Весь план</button>
@@ -129,6 +134,8 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
     <div class="bar selbar" id="drawBar" hidden><span class="hint">Ведите по плану от точки до точки – перегородка ляжет ровно и прилипнет к стенам. Двигать план – двумя пальцами или выключите рисование.</span><span class="sp"></span><button class="btn" id="drawOff">Готово</button></div>
     <div class="bar selbar" id="selBar" hidden>
       <b id="selName" class="selname"></b>
+      <label class="szl"><span id="sWl">Длина</span><input type="number" id="sW" min="1" max="900" inputmode="numeric"></label>
+      <label class="szl"><span id="sDl">Глубина</span><input type="number" id="sD" min="1" max="900" inputmode="numeric"></label>
       <span class="sp"></span>
       <button class="btn" id="tRot" title="Повернуть (R)">⟳ Повернуть</button>
       <button class="btn" id="tDup" title="Копия (D)">Копия</button>
@@ -141,6 +148,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <g id="lGrid" class="g-grid"></g>
       <g id="lBase"></g>
       <g id="lItems"></g>
+      <g id="lDims" class="dims"></g>
       <g id="lClr" class="clr"></g>
     </svg>
     <div class="status">
@@ -403,7 +411,7 @@ function drawItems() {
       var fs = e[0] < 70 ? 9 : 11;
       var ty = it.y + (it.type === 'tri' && it.rot === 0 ? e[1] * 0.15 : 0);
       el('text', { 'class': 'it-t', x: it.x, y: ty - (e[1] >= 48 ? 3 : -3), style: 'font-size:' + fs + 'px' }, L, short(it.name, it.type === 'tri' ? e[0] * 0.6 : e[0], fs));
-      if (e[1] >= 48) el('text', { 'class': 'it-s', x: it.x, y: ty + 11 }, L, it.w + '×' + it.d);
+      if (e[1] >= 48 && opts.dims !== 0) el('text', { 'class': 'it-s', x: it.x, y: ty + 11 }, L, it.w + '×' + it.d);
     }
   });
   drawClr();
@@ -424,7 +432,7 @@ function drawClr() {
   var L = $('lClr'); L.textContent = '';
   if (draft) { drawDraft(L); return; }
   if (sel) drawHandles(L);
-  if (!sel || sel.type === 'door') return;
+  if (!sel || sel.type === 'door' || opts.dims === 0) return;
   var c = clearances(sel), b = c.b;
   c.list.forEach(function (q) {
     var g = el('g', { 'class': q.g > 0 && q.g < 60 && sel.cat !== 'wall' ? 'low' : '' }, L), x1, y1, x2, y2;
@@ -435,7 +443,25 @@ function drawClr() {
     el('text', { x: (x1 + x2) / 2 + (q.ax === 'y' ? 14 : 0), y: (y1 + y2) / 2 + (q.ax === 'x' ? -5 : 4) }, g, q.g);
   });
 }
-function drawAll() { drawBase(); drawItems(); setVB(); tabs(); }
+function drawDims() {
+  var g = $('lDims'); g.textContent = ''; dimsBtns();
+  if (opts.dims === 0) return;
+  function dm(x1, y1, x2, y2, label, off) {
+    el('line', { x1: x1, y1: y1, x2: x2, y2: y2 }, g);
+    [[x1, y1], [x2, y2]].forEach(function (p) { el('line', { x1: p[0] - 5, y1: p[1] + 5, x2: p[0] + 5, y2: p[1] - 5, 'stroke-width': 1.4 }, g); });
+    if (y1 === y2) el('text', { x: (x1 + x2) / 2, y: y1 - 6 }, g, label);
+    else { var cx = x1 - 7 + (off || 0), cy = (y1 + y2) / 2; el('text', { x: cx, y: cy, transform: 'rotate(-90 ' + cx + ' ' + cy + ')' }, g, label); }
+  }
+  dm(0, -80, 290, -80, '290'); dm(290, -80, 415, -80, '125');
+  dm(-75, 0, -75, 816, '816');
+  dm(415 + W + 22, 0, 415 + W + 22, 381, '381', 22); dm(618 + W + 22, 381, 618 + W + 22, 816, '435', 22);
+  dm(415, 405, 618, 405, '204');
+  dm(0, 816 + W + 45, 618, 816 + W + 45, '618');
+  dm(0, 816 + W + 14, 295, 816 + W + 14, '299'); dm(295, 816 + W + 14, 467, 816 + W + 14, '174'); dm(467, 816 + W + 14, 605, 816 + W + 14, '140');
+}
+function dimsBtns() { Array.prototype.forEach.call(document.querySelectorAll('[data-dims]'), function (b) { var on = (opts.dims !== 0) === (b.getAttribute('data-dims') === '1'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); }
+Array.prototype.forEach.call(document.querySelectorAll('[data-dims]'), function (b) { b.onclick = function () { opts.dims = +b.getAttribute('data-dims'); save(); drawDims(); drawItems(); }; });
+function drawAll() { drawBase(); drawDims(); drawItems(); setVB(); tabs(); }
 
 /* ---------- Панель свойств ---------- */
 function updatePanel(bad) {
@@ -449,7 +475,8 @@ function updatePanel(bad) {
   var b = bbox(sel);
   $('propTitle').textContent = sel.name;
   if (document.activeElement !== $('pName')) $('pName').value = sel.name;
-  [['pW', sel.w], ['pD', sel.d], ['pX', Math.round(b[0])], ['pY', Math.round(b[1])]].forEach(function (p) { if (document.activeElement !== $(p[0])) $(p[0]).value = p[1]; });
+  var isW2 = sel.cat === 'wall'; $('sDl').textContent = isW2 ? 'Толщина' : 'Глубина';
+  [['sW', sel.w], ['sD', sel.d], ['pW', sel.w], ['pD', sel.d], ['pX', Math.round(b[0])], ['pY', Math.round(b[1])]].forEach(function (p) { if (document.activeElement !== $(p[0])) $(p[0]).value = p[1]; });
   var cf = conflicts(sel);
   $('pBad').hidden = !cf.length;
   $('pBad').textContent = cf.length ? 'Пересекается: ' + cf.join(', ') : '';
@@ -459,6 +486,8 @@ function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&
 function num(id, fn) { $(id).addEventListener('input', function () { var v = parseFloat(this.value); if (!sel || !isFinite(v)) return; snapshot(); fn(v); save(); drawItems(); }); }
 num('pW', function (v) { sel.w = Math.max(1, Math.min(900, Math.round(v))); });
 num('pD', function (v) { sel.d = Math.max(1, Math.min(900, Math.round(v))); });
+num('sW', function (v) { sel.w = Math.max(1, Math.min(900, Math.round(v))); });
+num('sD', function (v) { sel.d = Math.max(1, Math.min(900, Math.round(v))); });
 num('pX', function (v) { sel.x = v + ext(sel)[0] / 2; });
 num('pY', function (v) { sel.y = v + ext(sel)[1] / 2; });
 $('pName').addEventListener('input', function () { if (!sel) return; sel.name = this.value || 'Предмет'; save(); drawItems(); });
