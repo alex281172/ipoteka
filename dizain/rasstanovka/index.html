@@ -149,7 +149,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 <div class="hero">
   <div class="eyebrow"><a href="../">Дизайн</a> · расстановка мебели</div>
   <h1>Расстановка мебели</h1>
-  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Переключатели вверху показывают или прячут перегородки по чертежу ЕГРН и нарисованные вами – отдельно друг от друга; спрятанные не удаляются. В «Варианте 1» перегородки ЕГРН включены, в вариантах 2 и 3 – выключены. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка»; дверь в неё – кнопкой «+ Проём» у выбранной перегородки. «Замок» фиксирует размер и положение предмета, чтобы случайно не сдвинуть. Инженерия: в каталоге – розетки, выключатели, свет, выводы воды и канализации, вентиляция (условные обозначения по мотивам ГОСТ 21.210 и 21.205), кнопка «〰 Трасса» рисует кабель, трубы В1, Т3, К1 и воздуховоды; слои «Электрика», «Вода», «Вентиляция» включаются отдельно. Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
+  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Переключатели вверху показывают или прячут перегородки по чертежу ЕГРН и нарисованные вами – отдельно друг от друга; спрятанные не удаляются. В «Варианте 1» перегородки ЕГРН включены, в вариантах 2 и 3 – выключены. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка»; дверь в неё – кнопкой «+ Проём» у выбранной перегородки. «Замок» фиксирует размер и положение предмета, чтобы случайно не сдвинуть. Инженерия: в каталоге – розетки, выключатели, свет, выводы воды и канализации, вентиляция (условные обозначения по мотивам ГОСТ 21.210 и 21.205), кнопка «〰 Трасса» рисует кабель, трубы В1, Т3, К1 и воздуховоды; слои «Мебель», «Электрика», «Вода», «Вентиляция» включаются отдельно. Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
 </div>
 
 <div id="shared" class="banner" hidden>Открыт вариант по ссылке. <button class="btn" id="keepShared">Сохранить его в текущий вариант</button></div>
@@ -166,6 +166,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <select id="drawT" class="btn" title="Толщина перегородки" hidden><option value="8">8 см</option><option value="10" selected>10 см</option><option value="12">12 см</option><option value="15">15 см</option></select>
       <span class="grp" role="group" aria-label="Перегородки по ЕГРН"><span>Перегородки ЕГРН</span><button class="btn" data-vis="egrn" data-on="1">С</button><button class="btn" data-vis="egrn" data-on="0">Без</button></span>
       <span class="grp" role="group" aria-label="Нарисованные перегородки"><span>Нарисованные</span><button class="btn" data-vis="user" data-on="1">С</button><button class="btn" data-vis="user" data-on="0">Без</button></span>
+      <span class="grp" role="group" aria-label="Мебель"><span>Мебель</span><button class="btn" data-lay="furn" data-on="1">С</button><button class="btn" data-lay="furn" data-on="0">Без</button></span>
       <span class="grp" role="group" aria-label="Электрика"><span>Электрика</span><button class="btn" data-lay="el" data-on="1">С</button><button class="btn" data-lay="el" data-on="0">Без</button></span>
       <span class="grp" role="group" aria-label="Вода"><span>Вода</span><button class="btn" data-lay="water" data-on="1">С</button><button class="btn" data-lay="water" data-on="0">Без</button></span>
       <span class="grp" role="group" aria-label="Вентиляция"><span>Вентиляция</span><button class="btn" data-lay="vent" data-on="1">С</button><button class="btn" data-lay="vent" data-on="0">Без</button></span>
@@ -393,7 +394,7 @@ var SYS = { el: '#B45309', water: '#1F5FBF', vent: '#0E7C86' };
 var KIND = { cable: { n: 'Кабель', s: 'el', c: '#B45309' }, B1: { n: 'Холодная вода В1', s: 'water', c: '#1F5FBF', t: 'В1' }, T3: { n: 'Горячая вода Т3', s: 'water', c: '#C0392B', t: 'Т3' }, K1: { n: 'Канализация К1', s: 'water', c: '#7A4E2D', t: 'К1', dash: '7 4' }, duct: { n: 'Воздуховод', s: 'vent', c: '#0E7C86' } };
 function sysOf(it) {
   if (it.type === 'route') return (KIND[it.k] || KIND.cable).s;
-  if (!/^u-/.test(it.type)) return null;
+  if (!/^u-/.test(it.type)) return ['wall', 'deco', 'door', 'eng'].indexOf(it.cat) < 0 ? 'furn' : null;
   return /^u-(sock|tv|sw|light|spot|lin|box|shield)/.test(it.type) ? 'el' : /^u-(grille|diff|fan|check|brz)/.test(it.type) ? 'vent' : 'water';
 }
 function shown(it) { var s = sysOf(it); return (!it.src || vis[it.src]) && !(s && opts.lay && opts.lay[s] === 0); }
@@ -806,7 +807,7 @@ function add(c) {
   if (c[1] === 'Перегородка') { it.src = 'user'; vis.user = 1; }
   var DH = { 'u-sock': 300, 'u-sock2': 300, 'u-tv': 300, 'u-sockP': 600, 'u-sw1': 900, 'u-sw2': 900, 'u-swp': 900, 'u-shield': 1700, 'u-box': 2800, 'u-brz': 2200 };
   if (DH[c[0]] != null) it.h = DH[c[0]];
-  if (c[4] === 'eng') { var s = sysOf(it); opts.lay = opts.lay || { el: 1, water: 1, vent: 1 }; if (opts.lay[s] === 0) opts.lay[s] = 1; }
+  if (sysOf(it)) { var s = sysOf(it); opts.lay = opts.lay || {}; if (opts.lay[s] === 0) opts.lay[s] = 1; }
   snapMove(it, cx, cy); items.push(it); sel = it; save(); drawItems();
   if (window.innerWidth < 900) document.querySelector('.board').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -890,7 +891,7 @@ num('rW', function (v) { if (sel.type === 'route') sel.w = Math.max(5, Math.min(
 $('sH').addEventListener('input', function () { if (!sel || sel.lock || sel.cat !== 'eng') return; var v = this.value.trim(); snapshot(); if (v === '') delete sel.h; else if (isFinite(+v)) sel.h = Math.round(+v); save(); drawItems(); });
 /* слои инженерии */
 function layBtns() { Array.prototype.forEach.call(document.querySelectorAll('[data-lay]'), function (b) { var on = ((opts.lay || {})[b.getAttribute('data-lay')] !== 0) === (b.getAttribute('data-on') === '1'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); }
-Array.prototype.forEach.call(document.querySelectorAll('[data-lay]'), function (b) { b.onclick = function () { opts.lay = opts.lay || { el: 1, water: 1, vent: 1 }; opts.lay[b.getAttribute('data-lay')] = +b.getAttribute('data-on'); if (sel && !shown(sel)) sel = null; save(); drawItems(); }; });
+Array.prototype.forEach.call(document.querySelectorAll('[data-lay]'), function (b) { b.onclick = function () { opts.lay = opts.lay || {}; opts.lay[b.getAttribute('data-lay')] = +b.getAttribute('data-on'); if (sel && !shown(sel)) sel = null; save(); drawItems(); }; });
 $('drawOff').onclick = function () { setDraw(false); };
 
 /* ---------- Мышь и пальцы ---------- */
