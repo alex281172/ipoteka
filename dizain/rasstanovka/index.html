@@ -32,6 +32,16 @@ body.locked .gate{display:flex;min-height:80vh;align-items:center;justify-conten
 .btn:disabled{opacity:.45;cursor:default}
 .tabs{display:flex;gap:4px}
 .selbar{background:var(--tint)}
+.szl select{font:600 13px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--accent);border-radius:7px;padding:3px 4px}
+.ue{fill:var(--surface);stroke-width:1.4px;vector-effect:non-scaling-stroke}
+.ul{fill:none;stroke-width:1.4px;vector-effect:non-scaling-stroke}
+.ut{font-family:var(--f-num);font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.uh{font:600 9px var(--f-num);text-anchor:middle;pointer-events:none}
+.rl{fill:none;stroke-width:2.2px;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.rhit{fill:none;stroke:transparent;stroke-width:16px;vector-effect:non-scaling-stroke;cursor:move}
+.rsel{fill:none;stroke:var(--accent);stroke-opacity:.35;stroke-width:9px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.rtxt{font:700 11px var(--f-num);text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--surface);stroke-width:4px;pointer-events:none}
+.vh{fill:var(--surface);stroke:var(--accent);stroke-width:2px;vector-effect:non-scaling-stroke;cursor:pointer}
 .grp{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:9px;padding:2px 2px 2px 8px;font-size:12.5px;color:var(--muted)}
 .grp span{margin-right:6px}
 .grp .btn{border:0;padding:4px 9px;border-radius:7px}
@@ -139,7 +149,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 <div class="hero">
   <div class="eyebrow"><a href="../">Дизайн</a> · расстановка мебели</div>
   <h1>Расстановка мебели</h1>
-  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Переключатели вверху показывают или прячут перегородки по чертежу ЕГРН и нарисованные вами – отдельно друг от друга; спрятанные не удаляются. В «Варианте 1» перегородки ЕГРН включены, в вариантах 2 и 3 – выключены. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка»; дверь в неё – кнопкой «+ Проём» у выбранной перегородки. «Замок» фиксирует размер и положение предмета, чтобы случайно не сдвинуть. Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
+  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Переключатели вверху показывают или прячут перегородки по чертежу ЕГРН и нарисованные вами – отдельно друг от друга; спрятанные не удаляются. В «Варианте 1» перегородки ЕГРН включены, в вариантах 2 и 3 – выключены. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка»; дверь в неё – кнопкой «+ Проём» у выбранной перегородки. «Замок» фиксирует размер и положение предмета, чтобы случайно не сдвинуть. Инженерия: в каталоге – розетки, выключатели, свет, выводы воды и канализации, вентиляция (условные обозначения по мотивам ГОСТ 21.210 и 21.205), кнопка «〰 Трасса» рисует кабель, трубы В1, Т3, К1 и воздуховоды; слои «Электрика», «Вода», «Вентиляция» включаются отдельно. Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
 </div>
 
 <div id="shared" class="banner" hidden>Открыт вариант по ссылке. <button class="btn" id="keepShared">Сохранить его в текущий вариант</button></div>
@@ -151,14 +161,20 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
         <button class="btn" data-var="0">Вариант 1</button><button class="btn" data-var="1">Вариант 2</button><button class="btn" data-var="2">Вариант 3</button>
       </div>
       <button class="btn" id="bDraw" aria-pressed="false">✏ Перегородка</button>
+      <button class="btn" id="bRoute" aria-pressed="false">〰 Трасса</button>
+      <select id="routeK" class="btn" title="Что рисуем" hidden><option value="cable">Кабель</option><option value="B1">В1 – холодная вода</option><option value="T3">Т3 – горячая вода</option><option value="K1">К1 – канализация</option><option value="duct">Воздуховод</option></select>
       <select id="drawT" class="btn" title="Толщина перегородки" hidden><option value="8">8 см</option><option value="10" selected>10 см</option><option value="12">12 см</option><option value="15">15 см</option></select>
       <span class="grp" role="group" aria-label="Перегородки по ЕГРН"><span>Перегородки ЕГРН</span><button class="btn" data-vis="egrn" data-on="1">С</button><button class="btn" data-vis="egrn" data-on="0">Без</button></span>
       <span class="grp" role="group" aria-label="Нарисованные перегородки"><span>Нарисованные</span><button class="btn" data-vis="user" data-on="1">С</button><button class="btn" data-vis="user" data-on="0">Без</button></span>
+      <span class="grp" role="group" aria-label="Электрика"><span>Электрика</span><button class="btn" data-lay="el" data-on="1">С</button><button class="btn" data-lay="el" data-on="0">Без</button></span>
+      <span class="grp" role="group" aria-label="Вода"><span>Вода</span><button class="btn" data-lay="water" data-on="1">С</button><button class="btn" data-lay="water" data-on="0">Без</button></span>
+      <span class="grp" role="group" aria-label="Вентиляция"><span>Вентиляция</span><button class="btn" data-lay="vent" data-on="1">С</button><button class="btn" data-lay="vent" data-on="0">Без</button></span>
       <span class="grp" role="group" aria-label="Размеры"><span>Размеры</span><button class="btn" data-dims="1">С</button><button class="btn" data-dims="0">Без</button></span>
       <span class="sp"></span>
       <button class="btn" id="undo" title="Отменить (Ctrl+Z)">↶</button>
       <button class="btn" id="zin" title="Приблизить">+</button><button class="btn" id="zout" title="Отдалить">−</button><button class="btn" id="zfit">Весь план</button>
     </div>
+    <div class="bar selbar" id="routeBar" hidden><span class="hint" id="routeHint">Нажимайте по плану точку за точкой – трасса идёт под прямым углом (с <kbd>Shift</kbd> – под любым). Двойное нажатие или «Готово» – закончить.</span><span class="sp"></span><button class="btn" id="routeUndo">↶ Точку</button><button class="btn" id="routeOff">Готово</button></div>
     <div class="bar selbar" id="drawBar" hidden><span class="hint">Ведите по плану от точки до точки – перегородка ляжет ровно и прилипнет к стенам. Двигать план – двумя пальцами или выключите рисование.</span><span class="sp"></span><button class="btn" id="drawOff">Готово</button></div>
     <div class="bar selbar" id="selBar">
       <span id="selHint" class="hint">Нажмите на предмет или перегородку – здесь появятся размеры, замок и кнопки.</span>
@@ -166,6 +182,9 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <label class="szl"><span id="sWl">Длина</span><input type="number" id="sW" min="1" max="900" inputmode="numeric"></label>
       <label class="szl"><span id="sDl">Глубина</span><input type="number" id="sD" min="1" max="900" inputmode="numeric"></label>
       <span class="sp"></span>
+      <label class="szl" id="rKl">Тип<select id="rK"><option value="cable">Кабель</option><option value="B1">В1</option><option value="T3">Т3</option><option value="K1">К1</option><option value="duct">Воздуховод</option></select></label>
+      <label class="szl" id="rWl">Ширина<input type="number" id="rW" min="5" max="60" inputmode="numeric"></label>
+      <label class="szl" id="hL">Высота, мм<input type="number" id="sH" min="0" max="3100" step="50" inputmode="numeric"></label>
       <button class="btn" id="tOpAdd" hidden>+ Проём</button>
       <span id="opCtl" class="opctl" hidden><b>Проём</b>
         <label class="szl">ширина<input type="number" id="oW" min="20" max="400" inputmode="numeric"></label>
@@ -309,6 +328,18 @@ var CAT = [
     ['ward', 'Гардеробная секция', 100, 55, 'store'], ['box', 'Банкетка', 80, 35, 'sit']]],
   ['Рабочее место', [
     ['desk', 'Стол Mijia ET119W-C', 120, 60, 'table'], ['desk', 'Стол Mijia ET119W-C', 140, 70, 'table'], ['box', 'Рабочий стол', 120, 60, 'table'], ['arm', 'Кресло офисное', 60, 60, 'sit'], ['box', 'Тумба офисная', 40, 50, 'store']]],
+  ['Электрика · ГОСТ 21.210', [
+    ['u-sock', 'Розетка', 16, 12, 'eng'], ['u-sock2', 'Розетка двойная', 22, 12, 'eng'], ['u-sockP', 'Розетка силовая (плита, духовка)', 16, 12, 'eng'], ['u-tv', 'Розетка ТВ / интернет', 16, 12, 'eng'],
+    ['u-sw1', 'Выключатель одноклавишный', 14, 14, 'eng'], ['u-sw2', 'Выключатель двухклавишный', 14, 14, 'eng'], ['u-swp', 'Выключатель проходной', 16, 14, 'eng'],
+    ['u-light', 'Светильник потолочный', 24, 24, 'eng'], ['u-spot', 'Точечный светильник', 10, 10, 'eng'], ['u-lin', 'Линейный светильник', 100, 6, 'eng'],
+    ['u-box', 'Коробка распаечная', 8, 8, 'eng'], ['u-shield', 'Щиток квартирный', 30, 12, 'eng']]],
+  ['Вода и канализация · ГОСТ 21.205', [
+    ['u-b1', 'Вывод холодной воды В1', 14, 14, 'eng'], ['u-t3', 'Вывод горячей воды Т3', 14, 14, 'eng'], ['u-k1', 'Выпуск канализации К1', 14, 14, 'eng'],
+    ['u-trap', 'Трап', 15, 15, 'eng'], ['u-valve', 'Кран шаровой', 16, 10, 'eng'], ['u-evalve', 'Кран с электроприводом', 16, 16, 'eng'],
+    ['u-meter', 'Счётчик воды', 18, 12, 'eng'], ['u-leak', 'Датчик протечки', 10, 10, 'eng'], ['u-coll', 'Коллектор', 40, 10, 'eng']]],
+  ['Вентиляция · ГОСТ 21.205', [
+    ['u-grille', 'Решётка вентиляционная', 20, 8, 'eng'], ['u-diff', 'Диффузор, анемостат', 20, 20, 'eng'], ['u-fan', 'Вентилятор канальный', 22, 22, 'eng'],
+    ['u-check', 'Обратный клапан', 16, 10, 'eng'], ['u-brz', 'Бризер, приточный клапан', 40, 15, 'eng']]],
   ['Люди', [
     ['pstand', 'Мужчина стоя', 50, 30, 'person'], ['pstand', 'Женщина стоя', 44, 28, 'person'],
     ['pstand', 'Мужчина стоя, руки согнуты', 56, 56, 'person'], ['pstand', 'Женщина стоя, руки согнуты', 50, 50, 'person'],
@@ -358,7 +389,15 @@ function untouched(v) {
   return v && v.length === EGRN.length && v.every(function (it, i) { var p = EGRN[i]; return it.cat === 'wall' && Math.abs(it.x - (p[0] + p[2] / 2)) < 0.01 && Math.abs(it.y - (p[1] + p[3] / 2)) < 0.01 && it.w === p[2] && it.d === p[3]; });
 }
 function isKor(it) { return it.type === 'kor' || it.name === 'Колонна, короб'; }
-function shown(it) { return !it.src || vis[it.src]; }
+var SYS = { el: '#B45309', water: '#1F5FBF', vent: '#0E7C86' };
+var KIND = { cable: { n: 'Кабель', s: 'el', c: '#B45309' }, B1: { n: 'Холодная вода В1', s: 'water', c: '#1F5FBF', t: 'В1' }, T3: { n: 'Горячая вода Т3', s: 'water', c: '#C0392B', t: 'Т3' }, K1: { n: 'Канализация К1', s: 'water', c: '#7A4E2D', t: 'К1', dash: '7 4' }, duct: { n: 'Воздуховод', s: 'vent', c: '#0E7C86' } };
+function sysOf(it) {
+  if (it.type === 'route') return (KIND[it.k] || KIND.cable).s;
+  if (!/^u-/.test(it.type)) return null;
+  return /^u-(sock|tv|sw|light|spot|lin|box|shield)/.test(it.type) ? 'el' : /^u-(grille|diff|fan|check|brz)/.test(it.type) ? 'vent' : 'water';
+}
+function shown(it) { var s = sysOf(it); return (!it.src || vis[it.src]) && !(s && opts.lay && opts.lay[s] === 0); }
+function routeLen(it) { var L = 0; for (var i = 1; i < it.pts.length; i++) L += Math.hypot(it.pts[i][0] - it.pts[i - 1][0], it.pts[i][1] - it.pts[i - 1][1]); return Math.round(L); }
 function visBtns() { Array.prototype.forEach.call(document.querySelectorAll('[data-vis]'), function (b) { var on = !!vis[b.getAttribute('data-vis')] === (b.getAttribute('data-on') === '1'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); }
 function save() { store.cur = cur; store.vars[cur] = items; store.vis[cur] = vis; store.opts = opts; try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 function snapshot() { history.push(JSON.stringify(items)); if (history.length > 60) history.shift(); }
@@ -370,8 +409,10 @@ function ext(it) {
   var a = r * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));   // повёрнутый предмет – по описанному прямоугольнику
   return [Math.round((it.w * c + it.d * s) * 10) / 10, Math.round((it.w * s + it.d * c) * 10) / 10];
 }
-function freeRot(it) { return it && it.cat !== 'wall' && it.cat !== 'deco'; }
-function bbox(it) { var e = ext(it); return [it.x - e[0] / 2, it.y - e[1] / 2, it.x + e[0] / 2, it.y + e[1] / 2]; }
+function freeRot(it) { return it && it.cat !== 'wall' && it.cat !== 'deco' && it.type !== 'route'; }
+function bbox(it) {
+  if (it.type === 'route') { var xs = it.pts.map(function (q) { return q[0]; }), ys = it.pts.map(function (q) { return q[1]; }), pd = (it.w || 0) / 2 + 3; return [Math.min.apply(0, xs) - pd, Math.min.apply(0, ys) - pd, Math.max.apply(0, xs) + pd, Math.max.apply(0, ys) + pd]; }
+  var e = ext(it); return [it.x - e[0] / 2, it.y - e[1] / 2, it.x + e[0] / 2, it.y + e[1] / 2]; }
 function toWorld(it, lx, ly) { var r = (((it.rot % 360) + 360) % 360) * Math.PI / 180, c = Math.round(Math.cos(r)), s = Math.round(Math.sin(r)); return [it.x + lx * c - ly * s, it.y + lx * s + ly * c]; }
 function lrect(it, x1, y1, x2, y2) { var a = toWorld(it, x1, y1), b = toWorld(it, x2, y2); return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1])]; }
 function segs(it) {
@@ -386,7 +427,7 @@ function ov(a, b) { return a[0] < b[2] - 0.01 && a[2] > b[0] + 0.01 && a[1] < b[
 function obstacles(except) {
   var o = WALLR.map(function (r) { return { n: 'стена', r: r }; }).concat(FIXED);
   if (opts.boxes === 'on') o = o.concat(BOXES);
-  items.forEach(function (it) { if (it !== except && it.type !== 'door' && it.cat !== 'person' && shown(it)) partRects(it).forEach(function (r) { o.push({ n: it.name, r: r, it: it }); }); });
+  items.forEach(function (it) { if (it !== except && it.type !== 'door' && it.cat !== 'person' && it.cat !== 'eng' && shown(it)) partRects(it).forEach(function (r) { o.push({ n: it.name, r: r, it: it }); }); });
   return o;
 }
 function insideFlat(b) {   // всё ли внутри контура квартиры
@@ -395,7 +436,7 @@ function insideFlat(b) {   // всё ли внутри контура кварт
 }
 function pin(x, y) { var c = false; for (var i = 0, j = INNER.length - 1; i < INNER.length; j = i++) { var a = INNER[i], b = INNER[j]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
 function conflicts(it) {
-  if (it.type === 'door' || it.cat === 'person') return [];
+  if (it.type === 'door' || it.cat === 'person' || it.cat === 'eng') return [];
   var b = bbox(it), out = [];
   if (!insideFlat([b[0] + 0.5, b[1] + 0.5, b[2] - 0.5, b[3] - 0.5])) out.push('выходит за стены');
   obstacles(it).forEach(function (o) {
@@ -497,8 +538,10 @@ function drawItems() {
   var bad = {};
   items.forEach(function (it) { if (shown(it) && conflicts(it).length) bad[it.id] = 1; });
   // перегородки снизу, остальное сверху, выбранный – последним
-  var order = items.filter(shown).sort(function (a, b) { return (b.cat === 'wall') - (a.cat === 'wall') || (a === sel) - (b === sel); });
+  var rank = function (i) { return i.cat === 'wall' ? 0 : i.cat === 'eng' ? 2 : 1; };
+  var order = items.filter(shown).sort(function (a, b) { return rank(a) - rank(b) || (a === sel) - (b === sel); });
   order.forEach(function (it) {
+    if (it.type === 'route') { drawRoute(L, it); return; }
     var g = el('g', { 'class': 'it' + (it.cat === 'wall' ? ' wallit' : '') + (it === sel ? ' sel' : '') + (bad[it.id] ? ' bad' : ''), 'data-id': it.id, transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + it.rot + ')' }, L);
     if (it.type === 'round') el('ellipse', { 'class': 'b', cx: 0, cy: 0, rx: it.w / 2, ry: it.d / 2, fill: FILL[it.cat] }, g);
     else if (it.type === 'tri') { el('rect', { x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, fill: 'transparent' }, g); el('path', { 'class': 'b', d: roundPoly([[0, -it.d / 2], [it.w / 2, it.d / 2], [-it.w / 2, it.d / 2]], Math.min(14, it.w / 5, it.d / 5)), fill: FILL[it.cat] }, g); }
@@ -516,13 +559,15 @@ function drawItems() {
         el('rect', { 'class': 'op' + (it === sel && selOp === i ? ' on' : ''), 'data-op': i, x: a, y: -hd - 12, width: ow, height: it.d + 24 }, g);
       });
     }
+    else if (it.cat === 'eng') { el('rect', { 'class': 'b', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, rx: 2, fill: 'transparent', 'stroke-opacity': it === sel ? 1 : 0 }, g); engGlyph(g, it, it.w, it.d); }
     else if (it.cat === 'person') el('rect', { 'class': 'b', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, rx: 4, fill: 'transparent', 'stroke-opacity': it === sel ? 1 : 0 }, g);
     else if (isKor(it)) el('rect', { 'class': 'b kor', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, fill: 'rgba(140,149,166,.18)' }, g);
     else el('rect', { 'class': 'b', x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, rx: it.cat === 'wall' || it.cat === 'deco' ? 0 : 3, fill: it.type === 'glass' ? '#D9ECF5' : FILL[it.cat] || '#eee' }, g);
     glyph(g, it, it.w, it.d);
     var e = ext(it);
     var vert = e[0] < 34 && e[1] >= 50 && e[0] >= 14;          // узкий предмет стоит «вертикально» – подпись вдоль
-    if (it.cat === 'person') { /* человек без подписи */ }
+    if (it.cat === 'eng') { if (it.h != null && it.h !== '' && opts.dims !== 0) el('text', { 'class': 'uh', x: it.x, y: it.y + e[1] / 2 + 8, fill: SYS[sysOf(it)] }, L, 'h' + it.h); }
+    else if (it.cat === 'person') { /* человек без подписи */ }
     else if (vert && it.cat !== 'wall' && it.cat !== 'deco' && it.type !== 'door') {
       var lab = /^Колонна с /.test(it.name) ? (it.type === 'oven' ? 'Духовка+СВЧ' : it.type === 'fridge' ? 'Холодильник' : it.name) : it.name, vfs = e[0] < 24 ? 7.5 : 9;
       el('text', { 'class': 'it-t', x: it.x, y: it.y + vfs / 3, style: 'font-size:' + vfs + 'px', transform: 'rotate(-90 ' + it.x + ' ' + it.y + ')' }, L, short(lab, e[1] - 6, vfs));
@@ -572,6 +617,62 @@ function person(g, it, w, d) {
     E(0, hy2, R2, R2 * 1.08);
   }
 }
+/* Условные обозначения инженерных систем, по мотивам ГОСТ 21.210 и 21.205; сторона стены – верхняя (при повороте 0) */
+function engGlyph(g, it, w, d) {
+  var c = SYS[sysOf(it)] || '#333', hw = w / 2, hd = d / 2, t = it.type, m = Math.min(hw, hd);
+  function L(x1, y1, x2, y2) { el('line', { 'class': 'ul', x1: x1, y1: y1, x2: x2, y2: y2, stroke: c }, g); }
+  function P(dd, fill) { el('path', { 'class': fill ? 'ul' : 'ue', d: dd, stroke: c, style: fill ? 'fill:' + c : '' }, g); }
+  function C(cx, cy, r, fill) { el('circle', { 'class': 'ue', cx: cx, cy: cy, r: r, stroke: c, style: fill ? 'fill:' + c : '' }, g); }
+  function Rc(x, y, ww, hh) { el('rect', { 'class': 'ue', x: x, y: y, width: ww, height: hh, stroke: c }, g); }
+  function T(s, size, y) { el('text', { 'class': 'ut', x: 0, y: y || 0, fill: c, style: 'font-size:' + size + 'px' }, g, s); }
+  if (/^u-(sock|tv)/.test(t)) {                              // розетка: полуокружность у стены, контакт к комнате
+    var r = Math.min(hw, d * 0.6);
+    P('M' + (-r) + ',' + (-hd) + ' A' + r + ',' + r + ' 0 0 0 ' + r + ',' + (-hd) + ' Z', t === 'u-sockP');
+    if (t === 'u-tv') T('TV', r * 0.8, -hd + r * 0.42);
+    var st = t === 'u-sock2' ? [-r * 0.45, r * 0.45] : [0];
+    st.forEach(function (x) { L(x, -hd + r, x, hd); L(x - r * 0.35, hd, x + r * 0.35, hd); });
+  } else if (/^u-sw/.test(t)) {                              // выключатель: кружок и рычаг с засечкой
+    var rr = m * 0.42, a = -Math.PI / 4, ex = Math.cos(a) * m * 1.25, ey = Math.sin(a) * m * 1.25;
+    C(0, hd * 0.25, rr);
+    L(Math.cos(a) * rr, hd * 0.25 + Math.sin(a) * rr, ex, hd * 0.25 + ey);
+    L(ex, hd * 0.25 + ey, ex + 3.2, hd * 0.25 + ey + 3.2);
+    if (t === 'u-sw2') L(ex * 0.72, hd * 0.25 + ey * 0.72, ex * 0.72 + 3.2, hd * 0.25 + ey * 0.72 + 3.2);
+    if (t === 'u-swp') { L(-Math.cos(a) * rr, hd * 0.25 - Math.sin(a) * rr, -ex, hd * 0.25 - ey); L(-ex, hd * 0.25 - ey, -ex - 3.2, hd * 0.25 - ey - 3.2); }
+  } else if (t === 'u-light') { var r2 = m - 1, k = r2 * 0.7071; C(0, 0, r2); L(-k, -k, k, k); L(-k, k, k, -k); }
+  else if (t === 'u-spot') { C(0, 0, m - 1); C(0, 0, (m - 1) * 0.45, true); }
+  else if (t === 'u-lin') { Rc(-hw, -hd, w, d); L(-hw + 3, 0, hw - 3, 0); }
+  else if (t === 'u-box') { C(0, 0, m - 0.5); C(0, 0, 1.2, true); }
+  else if (t === 'u-shield') { Rc(-hw, -hd, w, d); P('M' + (-hw) + ',' + hd + ' L' + hw + ',' + (-hd) + ' L' + (-hw) + ',' + (-hd) + ' Z', true); }
+  else if (t === 'u-b1' || t === 'u-t3' || t === 'u-k1') { var cc = t === 'u-t3' ? '#C0392B' : t === 'u-k1' ? '#7A4E2D' : c; c = cc; C(0, 0, m - 0.5); T(t === 'u-b1' ? 'В1' : t === 'u-t3' ? 'Т3' : 'К1', m * 0.9); }
+  else if (t === 'u-trap') { Rc(-hw, -hd, w, d); L(-hw, -hd, hw, hd); L(-hw, hd, hw, -hd); }
+  else if (t === 'u-valve' || t === 'u-evalve') {
+    var vy = t === 'u-evalve' ? hd * 0.3 : 0, vh = t === 'u-evalve' ? hd * 0.7 : hd;
+    P('M' + (-hw) + ',' + (vy - vh) + ' L0,' + vy + ' L' + (-hw) + ',' + (vy + vh) + ' Z'); P('M' + hw + ',' + (vy - vh) + ' L0,' + vy + ' L' + hw + ',' + (vy + vh) + ' Z');
+    if (t === 'u-evalve') { L(0, vy, 0, -hd + 5); Rc(-3.5, -hd, 7, 5); }
+  }
+  else if (t === 'u-meter') { Rc(-hw, -hd, w, d); C(0, 0, m * 0.65); }
+  else if (t === 'u-leak') { Rc(-hw, -hd, w, d); T('ДП', m * 0.95); }
+  else if (t === 'u-coll') { Rc(-hw, -hd, w, d * 0.6); for (var i = 0; i < 4; i++) { var x = -hw + w * (i + 0.5) / 4; L(x, -hd + d * 0.6, x, hd); } }
+  else if (t === 'u-grille') { Rc(-hw, -hd, w, d); for (var j = 1; j < 4; j++) { var gx = -hw + w * j / 4; L(gx - d * 0.4, hd, gx + d * 0.4, -hd); } }
+  else if (t === 'u-diff') { var r3 = m - 1, k3 = r3 * 0.7071; C(0, 0, r3); C(0, 0, r3 * 0.5); L(-k3, -k3, -k3 * 0.5, -k3 * 0.5); L(k3, k3, k3 * 0.5, k3 * 0.5); L(-k3, k3, -k3 * 0.5, k3 * 0.5); L(k3, -k3, k3 * 0.5, -k3 * 0.5); }
+  else if (t === 'u-fan') { var r4 = m - 1; C(0, 0, r4); P('M' + (-r4 * 0.6) + ',' + (r4 * 0.45) + ' L0,' + (-r4 * 0.7) + ' L' + (r4 * 0.6) + ',' + (r4 * 0.45) + ' Z'); }
+  else if (t === 'u-check') { Rc(-hw, -hd, w, d); L(-hw + 2, hd - 1, hw - 2, -hd + 1); C(-hw + 2, hd - 1, 1.2, true); }
+  else if (t === 'u-brz') { Rc(-hw, -hd, w, d); L(0, -hd + 2, 0, hd - 2); L(-3, hd - 5, 0, hd - 2); L(3, hd - 5, 0, hd - 2); }
+}
+function drawRoute(L, it) {
+  var K = KIND[it.k] || KIND.cable, pts = it.pts.map(function (q) { return q.join(','); }).join(' ');
+  var g = el('g', { 'class': 'it route' + (it === sel ? ' sel' : ''), 'data-id': it.id }, L);
+  if (it === sel) el('polyline', { 'class': 'rsel', points: pts }, g);
+  if (it.k === 'duct') {
+    el('polyline', { points: pts, fill: 'none', stroke: K.c, 'stroke-opacity': .2, 'stroke-width': it.w || 20, 'stroke-linejoin': 'miter' }, g);
+    el('polyline', { 'class': 'rl', points: pts, stroke: K.c, 'stroke-dasharray': '10 4 2 4', style: 'stroke-width:1.2px' }, g);
+  } else el('polyline', { 'class': 'rl', points: pts, stroke: K.c, 'stroke-dasharray': K.dash || '' }, g);
+  el('polyline', { 'class': 'rhit', points: pts }, g);
+  if (K.t || it.k === 'duct') for (var i = 1; i < it.pts.length; i++) {
+    var a = it.pts[i - 1], b = it.pts[i], len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (len >= 45) el('text', { 'class': 'rtxt', x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2, fill: K.c }, g, K.t || ('Вз ' + (it.w || 20)));
+  }
+}
 function roundPoly(pts, r) {
   var n = pts.length, d = '';
   for (var i = 0; i < n; i++) {
@@ -586,6 +687,7 @@ function short(s, w, fs) { var max = Math.floor(w / (fs * 0.58)); return s.lengt
 function drawClr() {
   var L = $('lClr'); L.textContent = '';
   if (draft) { drawDraft(L); return; }
+  if (rdraw) { drawRouteDraft(L); return; }
   if (sel) drawHandles(L);
   if (!sel || sel.type === 'door' || opts.dims === 0) return;
   var c = clearances(sel), b = c.b;
@@ -633,7 +735,14 @@ function updatePanel(bad) {
   ['tRot', 'tDup', 'tDel'].forEach(function (id) { $(id).hidden = !!opOn; });
   Array.prototype.forEach.call(document.querySelectorAll('#selBar > .szl'), function (l) { l.hidden = !!opOn; });
   if (opOn) { var o = sel.ops[selOp]; if (document.activeElement !== $('oW')) $('oW').value = o[1]; if (document.activeElement !== $('oP')) $('oP').value = Math.round(o[0]); $('oSw').textContent = ['Без двери', 'Дверь ↘', 'Дверь ↙', 'Дверь ↗', 'Дверь ↖'][o[2] || 0] + ' ⟳'; }
+  layBtns();
+  var isR = sel && sel.type === 'route', isE = sel && sel.cat === 'eng' && !isR;
+  $('rKl').style.display = isR ? '' : 'none'; $('rWl').style.display = isR && sel.k === 'duct' ? '' : 'none'; $('hL').style.display = isE ? '' : 'none';
+  if (isR) { ['sWl', 'sDl'].forEach(function (id) { $(id).parentNode.style.display = 'none'; }); ['tRot', 'tRotL', 'tRotR', 'tAngL'].forEach(function (id) { $(id).style.display = 'none'; }); $('rK').value = sel.k; if (document.activeElement !== $('rW')) $('rW').value = sel.w || 20; }
+  if (isE && document.activeElement !== $('sH')) $('sH').value = sel.h != null ? sel.h : '';
+  ['pW', 'pD', 'pX', 'pY'].forEach(function (id) { $(id).disabled = !!(sel && (sel.lock || isR)); });
   if (!sel) { box.hidden = true; $('stSel').textContent = 'Ничего не выбрано'; return; }
+  if (isR) { box.hidden = false; $('selName').textContent = sel.name + ' · ' + routeLen(sel) + ' см'; $('propTitle').textContent = sel.name; if (document.activeElement !== $('pName')) $('pName').value = sel.name; $('pBad').hidden = true; $('stSel').innerHTML = esc(sel.name) + ' <b>' + routeLen(sel) + ' см</b>'; return; }
   box.hidden = false;
   $('selName').textContent = sel.name + ' · ' + sel.w + '×' + sel.d;
   var isW = sel.cat === 'wall'; $('lW').textContent = 'Длина, см'; $('lD').textContent = isW ? 'Толщина, см' : 'Глубина, см';
@@ -666,12 +775,12 @@ function delOp() { if (selOp == null || sel.lock) return; snapshot(); sel.ops.sp
 function toggleLock() { if (!sel) return; snapshot(); if (sel.lock) delete sel.lock; else sel.lock = 1; save(); drawItems(); }
 $('tLock').onclick = toggleLock; $('bLock').onclick = toggleLock;
 $('tRot').onclick = rot; $('tDup').onclick = dup; $('tDel').onclick = del;
-function rot() { if (!sel || sel.lock) return; snapshot(); sel.rot = norm360((Math.round(sel.rot / 90) * 90) + 90); save(); drawItems(); }
+function rot() { if (!sel || sel.lock || sel.type === 'route') return; snapshot(); sel.rot = norm360((Math.round(sel.rot / 90) * 90) + 90); save(); drawItems(); }
 function norm360(a) { return ((Math.round(a) % 360) + 360) % 360; }
 function rotBy(d) { if (!freeRot(sel) || sel.lock) return; snapshot(); sel.rot = norm360(sel.rot + d); save(); drawItems(); }
 $('tRotL').onclick = function () { rotBy(-15); }; $('tRotR').onclick = function () { rotBy(15); };
 $('tAng').addEventListener('change', function () { var v = parseFloat(this.value); if (!freeRot(sel) || sel.lock || !isFinite(v)) return; snapshot(); sel.rot = norm360(v); save(); drawItems(); });
-function dup() { if (!sel) return; snapshot(); var c = JSON.parse(JSON.stringify(sel)); c.id = mk().id; delete c.lock; c.x += 20; c.y += 20; items.push(c); sel = c; save(); drawItems(); }
+function dup() { if (!sel) return; snapshot(); var c = JSON.parse(JSON.stringify(sel)); c.id = mk().id; delete c.lock; c.x += 20; c.y += 20; if (c.pts) c.pts = c.pts.map(function (q) { return [q[0] + 20, q[1] + 20]; }); items.push(c); sel = c; save(); drawItems(); }
 function del() { if (!sel || sel.lock) return; snapshot(); items.splice(items.indexOf(sel), 1); sel = null; save(); drawItems(); }
 
 /* ---------- Каталог ---------- */
@@ -695,6 +804,9 @@ function add(c) {
   cx += n * 15; cy += n * 15;
   var it = mk(c[0], c[1], c[2], c[3], cx, cy, 0, c[4]);
   if (c[1] === 'Перегородка') { it.src = 'user'; vis.user = 1; }
+  var DH = { 'u-sock': 300, 'u-sock2': 300, 'u-tv': 300, 'u-sockP': 600, 'u-sw1': 900, 'u-sw2': 900, 'u-swp': 900, 'u-shield': 1700, 'u-box': 2800, 'u-brz': 2200 };
+  if (DH[c[0]] != null) it.h = DH[c[0]];
+  if (c[4] === 'eng') { var s = sysOf(it); opts.lay = opts.lay || { el: 1, water: 1, vent: 1 }; if (opts.lay[s] === 0) opts.lay[s] = 1; }
   snapMove(it, cx, cy); items.push(it); sel = it; save(); drawItems();
   if (window.innerWidth < 900) document.querySelector('.board').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -709,6 +821,7 @@ function snapVal(v, axis, except) {
   return r;
 }
 function drawHandles(L) {
+  if (sel.type === 'route') { if (sel.lock) return; sel.pts.forEach(function (q, i) { el('circle', { 'class': 'vh', 'data-v': i, cx: q[0], cy: q[1], r: px(6) }, L); }); return; }
   if (sel.lock || sel.rot % 90) return;   // под углом размеры меняются полями
   var b = bbox(sel), s = px(11), isW = sel.cat === 'wall' || sel.cat === 'deco', e = ext(sel), horiz = e[0] >= e[1];
   var hs = [['l', b[0], (b[1] + b[3]) / 2], ['r', b[2], (b[1] + b[3]) / 2], ['t', (b[0] + b[2]) / 2, b[1]], ['b', (b[0] + b[2]) / 2, b[3]]];
@@ -734,16 +847,67 @@ function setDraw(on) {
   $('drawT').hidden = !on; $('drawBar').hidden = !on; svg.classList.toggle('drawing', on);
   if (on) sel = null; drawItems();
 }
-$('bDraw').onclick = function () { setDraw(!draw); };
+$('bDraw').onclick = function () { if (rdraw) setRoute(false); setDraw(!draw); };
+/* ---------- Трассы: кабель, вода, канализация, воздуховоды ---------- */
+var rdraw = null;
+function setRoute(on) {
+  rdraw = on ? { k: $('routeK').value, pts: [], cur: null } : null;
+  $('bRoute').classList.toggle('on', !!on); $('bRoute').setAttribute('aria-pressed', !!on);
+  $('routeK').hidden = !on; $('routeBar').hidden = !on; svg.classList.toggle('drawing', !!on);
+  if (on) { if (draw) setDraw(false); sel = null; var s = KIND[rdraw.k].s; if (opts.lay && opts.lay[s] === 0) { opts.lay[s] = 1; save(); } }
+  drawItems();
+}
+function routePt(p, free) {
+  var st = +opts.snap || 1, x = Math.round(p.x / st) * st, y = Math.round(p.y / st) * st, last = rdraw.pts[rdraw.pts.length - 1];
+  if (last && !free) { if (Math.abs(x - last[0]) >= Math.abs(y - last[1])) y = last[1]; else x = last[0]; }
+  return [x, y];
+}
+function finishRoute() {
+  if (!rdraw) return;
+  var pts = rdraw.pts.filter(function (q, i, a) { return !i || q[0] !== a[i - 1][0] || q[1] !== a[i - 1][1]; });
+  if (pts.length >= 2) {
+    snapshot();
+    var it = mk('route', KIND[rdraw.k].n, rdraw.k === 'duct' ? 20 : 0, 0, pts[0][0], pts[0][1], 0, 'eng');
+    it.k = rdraw.k; it.pts = pts; items.push(it); save();
+  }
+  rdraw.pts = []; rdraw.cur = null; drawItems();
+}
+function drawRouteDraft(L) {
+  var K = KIND[rdraw.k], pts = rdraw.pts.slice(); if (rdraw.cur && pts.length) pts.push(rdraw.cur);
+  if (pts.length) el('polyline', { 'class': 'rl', points: pts.map(function (q) { return q.join(','); }).join(' '), stroke: K.c, 'stroke-dasharray': '6 4' }, L);
+  rdraw.pts.forEach(function (q) { el('circle', { 'class': 'vh', cx: q[0], cy: q[1], r: px(4) }, L); });
+  if (rdraw.cur && rdraw.pts.length) {
+    var a = rdraw.pts[rdraw.pts.length - 1], b = rdraw.cur, len = Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]));
+    el('text', { 'class': 'rtxt', x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2 - px(10), fill: K.c, style: 'font-size:' + px(12) + 'px' }, L, len + ' см');
+  }
+}
+$('bRoute').onclick = function () { setRoute(!rdraw); };
+$('routeOff').onclick = function () { finishRoute(); setRoute(false); };
+$('routeUndo').onclick = function () { if (rdraw && rdraw.pts.length) { rdraw.pts.pop(); drawClr(); } };
+$('routeK').onchange = function () { if (rdraw) { finishRoute(); rdraw.k = this.value; var s = KIND[rdraw.k].s; if (opts.lay && opts.lay[s] === 0) { opts.lay[s] = 1; save(); drawItems(); } } };
+$('rK').onchange = function () { if (!sel || sel.type !== 'route' || sel.lock) return; snapshot(); sel.k = this.value; sel.name = KIND[sel.k].n; if (sel.k === 'duct' && !sel.w) sel.w = 20; save(); drawItems(); };
+num('rW', function (v) { if (sel.type === 'route') sel.w = Math.max(5, Math.min(60, Math.round(v))); });
+$('sH').addEventListener('input', function () { if (!sel || sel.lock || sel.cat !== 'eng') return; var v = this.value.trim(); snapshot(); if (v === '') delete sel.h; else if (isFinite(+v)) sel.h = Math.round(+v); save(); drawItems(); });
+/* слои инженерии */
+function layBtns() { Array.prototype.forEach.call(document.querySelectorAll('[data-lay]'), function (b) { var on = ((opts.lay || {})[b.getAttribute('data-lay')] !== 0) === (b.getAttribute('data-on') === '1'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); }
+Array.prototype.forEach.call(document.querySelectorAll('[data-lay]'), function (b) { b.onclick = function () { opts.lay = opts.lay || { el: 1, water: 1, vent: 1 }; opts.lay[b.getAttribute('data-lay')] = +b.getAttribute('data-on'); if (sel && !shown(sel)) sel = null; save(); drawItems(); }; });
 $('drawOff').onclick = function () { setDraw(false); };
 
 /* ---------- Мышь и пальцы ---------- */
 function pt(ev) { var p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
-var drag = null, pan = null, pointers = {};
+var drag = null, pan = null, pointers = {}, vdrag = null;
 svg.addEventListener('pointerdown', function (ev) {
   pointers[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
   if (Object.keys(pointers).length === 2) { drag = null; rs = null; draft = null; pan = { pinch: dist(), vb: vb.slice() }; drawClr(); return; }
   var p = pt(ev), h = ev.target.getAttribute && ev.target.getAttribute('data-h');
+  var vi = ev.target.getAttribute && ev.target.getAttribute('data-v');
+  if (vi != null && sel && sel.type === 'route' && !sel.lock) { snapshot(); vdrag = { i: +vi, moved: false }; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); return; }
+  if (rdraw) {
+    var now = Date.now(), lp = rdraw.lastT && rdraw.pts[rdraw.pts.length - 1];
+    ev.preventDefault();
+    if (lp && now - rdraw.lastT < 400 && Math.hypot(ev.clientX - rdraw.lastC[0], ev.clientY - rdraw.lastC[1]) < 8) { rdraw.lastT = 0; finishRoute(); return; }
+    var q = routePt(p, ev.shiftKey); rdraw.pts.push(q); rdraw.cur = q; rdraw.lastT = now; rdraw.lastC = [ev.clientX, ev.clientY]; drawClr(); return;
+  }
   if (h && sel) { snapshot(); rs = { h: h, b: bbox(sel), moved: false }; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); return; }
   if (draw) { var x = snapVal(p.x, 'x', null), y = snapVal(p.y, 'y', null); draft = { x0: x, y0: y, x1: x, y1: y }; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); drawClr(); return; }
   var g = ev.target.closest && ev.target.closest('.it'), opi = ev.target.getAttribute && ev.target.getAttribute('data-op');
@@ -758,7 +922,7 @@ svg.addEventListener('pointerdown', function (ev) {
     var it = items.filter(function (i) { return i.id === g.getAttribute('data-id'); })[0];
     selOp = null; sel = it;
     if (it.lock) { drawItems(); pan = { x: ev.clientX, y: ev.clientY, vb: vb.slice() }; svg.setPointerCapture(ev.pointerId); return; }
-    snapshot(); drag = { it: it, dx: p.x - it.x, dy: p.y - it.y, moved: false };
+    snapshot(); drag = { it: it, dx: p.x - it.x, dy: p.y - it.y, moved: false, p0: [p.x, p.y], pts0: it.pts ? JSON.parse(JSON.stringify(it.pts)) : null };
     svg.setPointerCapture(ev.pointerId); drawItems(); ev.preventDefault();
   } else {
     if (sel) { sel = null; drawItems(); }
@@ -770,6 +934,9 @@ svg.addEventListener('pointermove', function (ev) {
   if (opDrag) { var st = +opts.snap || 1, o = opDrag.it.ops[selOp]; o[0] = Math.round((opDrag.p0 + along(opDrag.it, pt(ev)) - opDrag.u0) / st) * st; clampOps(opDrag.it); opDrag.moved = true; drawItems(); }
   else if (rs) { resizeTo(pt(ev)); rs.moved = true; drawItems(); }
   else if (draft) { var q = pt(ev), horiz = Math.abs(q.x - draft.x0) >= Math.abs(q.y - draft.y0); draft.x1 = horiz ? snapVal(q.x, 'x', null) : draft.x0; draft.y1 = horiz ? draft.y0 : snapVal(q.y, 'y', null); if (horiz) draft.y1 = draft.y0; else draft.x1 = draft.x0; drawClr(); }
+  else if (vdrag) { var st2 = +opts.snap || 1, q2 = pt(ev); sel.pts[vdrag.i] = [Math.round(q2.x / st2) * st2, Math.round(q2.y / st2) * st2]; vdrag.moved = true; drawItems(); }
+  else if (rdraw) { if (rdraw.pts.length) { rdraw.cur = routePt(pt(ev), ev.shiftKey); drawClr(); } }
+  else if (drag && drag.pts0) { var p3 = pt(ev), st3 = +opts.snap || 1, dx = Math.round((p3.x - drag.p0[0]) / st3) * st3, dy = Math.round((p3.y - drag.p0[1]) / st3) * st3; drag.it.pts = drag.pts0.map(function (q) { return [q[0] + dx, q[1] + dy]; }); drag.moved = true; drawItems(); }
   else if (drag) { var p = pt(ev); snapMove(drag.it, p.x - drag.dx, p.y - drag.dy); drag.moved = true; drawItems(); }
   else if (pan && pan.pinch) { var k = pan.pinch / dist(); zoomTo(pan.vb, k); }
   else if (pan) { var s = pan.vb[2] / svg.clientWidth; vb[0] = pan.vb[0] - (ev.clientX - pan.x) * s; vb[1] = pan.vb[1] - (ev.clientY - pan.y) * s; setVB(); }
@@ -778,6 +945,7 @@ function end(ev) {
   delete pointers[ev.pointerId];
   if (drag) { if (!drag.moved) history.pop(); save(); }
   if (rs) { if (!rs.moved) history.pop(); save(); }
+  if (vdrag) { if (!vdrag.moved) history.pop(); save(); vdrag = null; }
   if (opDrag) { if (!opDrag.moved) history.pop(); save(); opDrag = null; }
   if (draft) {
     var d = draftRect();
@@ -824,6 +992,8 @@ document.addEventListener('keydown', function (ev) {
   if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); undo(); return; }
   if (ev.key === 'Escape' && draw) { setDraw(false); return; }
+  if (rdraw && ev.key === 'Escape') { if (rdraw.pts.length) { rdraw.pts = []; rdraw.cur = null; drawClr(); } else setRoute(false); return; }
+  if (rdraw && ev.key === 'Enter') { finishRoute(); return; }
   if (!sel) return;
   var st = ev.shiftKey ? 10 : 1, k = ev.key;
   if (k === 'Delete' || k === 'Backspace') { ev.preventDefault(); if (selOp != null) delOp(); else del(); }
@@ -833,7 +1003,7 @@ document.addEventListener('keydown', function (ev) {
   else if (k === 'l' || k === 'L' || k === 'д' || k === 'Д') toggleLock();
   else if (k === '[' || k === 'х' || k === 'Х') rotBy(-15);
   else if (k === ']' || k === 'ъ' || k === 'Ъ') rotBy(15);
-  else if (/^Arrow/.test(k) && !sel.lock) { ev.preventDefault(); snapshot(); if (k === 'ArrowLeft') sel.x -= st; if (k === 'ArrowRight') sel.x += st; if (k === 'ArrowUp') sel.y -= st; if (k === 'ArrowDown') sel.y += st; save(); drawItems(); }
+  else if (/^Arrow/.test(k) && !sel.lock && sel.type !== 'route') { ev.preventDefault(); snapshot(); if (k === 'ArrowLeft') sel.x -= st; if (k === 'ArrowRight') sel.x += st; if (k === 'ArrowUp') sel.y -= st; if (k === 'ArrowDown') sel.y += st; save(); drawItems(); }
 });
 function undo() { if (!history.length) return; items = JSON.parse(history.pop()); store.vars[cur] = items; sel = null; save(); drawItems(); }
 $('undo').onclick = undo;
@@ -853,8 +1023,8 @@ $('bParts').onclick = function () { snapshot(); items = items.filter(function (i
 $('bClear').onclick = function () { if (!confirmClear()) return; snapshot(); items = []; store.vars[cur] = items; sel = null; save(); drawItems(); };
 function confirmClear() { var b = $('bClear'); if (b.dataset.armed) { delete b.dataset.armed; b.textContent = 'Очистить вариант'; return true; } b.dataset.armed = 1; b.textContent = 'Точно очистить?'; setTimeout(function () { delete b.dataset.armed; b.textContent = 'Очистить вариант'; }, 3000); return false; }
 
-function pack() { return items.map(function (i) { return [i.type, i.name, i.w, i.d, Math.round(i.x * 10) / 10, Math.round(i.y * 10) / 10, i.rot, i.cat, i.src || 0, i.ops && i.ops.length ? i.ops : 0, i.lock ? 1 : 0]; }); }
-function unpack(a) { var v = a.map(function (r) { var it = mk(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]); if (r[9]) it.ops = r[9]; if (r[10]) it.lock = 1; if (r[8]) it.src = r[8]; else if (it.cat === 'wall' && it.name === 'Перегородка') it.src = isEgrnPos(it) ? 'egrn' : 'user'; return it; }); if (!v.some(function (i) { return i.src === 'egrn'; })) v = v.concat(defaultVar()); return v; }
+function pack() { return items.map(function (i) { return [i.type, i.name, i.w, i.d, Math.round(i.x * 10) / 10, Math.round(i.y * 10) / 10, i.rot, i.cat, i.src || 0, i.ops && i.ops.length ? i.ops : 0, i.lock ? 1 : 0, i.pts || 0, i.k || 0, i.h != null ? i.h : null]; }); }
+function unpack(a) { var v = a.map(function (r) { var it = mk(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]); if (r[9]) it.ops = r[9]; if (r[10]) it.lock = 1; if (r[11]) it.pts = r[11]; if (r[12]) it.k = r[12]; if (r[13] != null) it.h = r[13]; if (r[8]) it.src = r[8]; else if (it.cat === 'wall' && it.name === 'Перегородка') it.src = isEgrnPos(it) ? 'egrn' : 'user'; return it; }); if (!v.some(function (i) { return i.src === 'egrn'; })) v = v.concat(defaultVar()); return v; }
 function b64e(s) { return btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
 function b64d(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return decodeURIComponent(escape(atob(s))); }
 $('bShare').onclick = function () {
@@ -966,7 +1136,7 @@ $('bPdf').onclick = function () {
   btn.disabled = true; btn.textContent = 'Готовлю PDF…';
   var p1 = planPage(date, vname);
   var list = items.filter(function (i) { return shown(i) && !(i.cat === 'wall' && i.src === 'egrn'); }).map(function (i) {
-    var bb = bbox(i); return [i.name, i.w + ' × ' + i.d, Math.round(bb[0]) + ' / ' + Math.round(bb[1]), (i.ops && i.ops.length ? i.ops.length + ' проём.' : '') + (i.lock ? ' замок' : '')];
+    var bb = bbox(i); if (i.type === 'route') return [i.name, 'длина ' + routeLen(i), Math.round(bb[0]) + ' / ' + Math.round(bb[1]), '']; return [i.name + (i.h != null ? ' · h' + i.h : ''), i.w + ' × ' + i.d, Math.round(bb[0]) + ' / ' + Math.round(bb[1]), (i.ops && i.ops.length ? i.ops.length + ' проём.' : '') + (i.lock ? ' замок' : '')];
   });
   var rows = '', y = 44;
   rows += '<text x="16" y="40" style="font:600 3.4px sans-serif;fill:#586277">Предмет</text><text x="120" y="40" style="font:600 3.4px sans-serif;fill:#586277">Длина × глубина</text><text x="160" y="40" style="font:600 3.4px sans-serif;fill:#586277">От левой / от входа</text>';
