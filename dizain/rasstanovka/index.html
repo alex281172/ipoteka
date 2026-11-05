@@ -38,6 +38,12 @@ body.locked .gate{display:flex;min-height:80vh;align-items:center;justify-conten
 .ut{font-family:var(--f-num);font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .uh{font:600 9px var(--f-num);text-anchor:middle;pointer-events:none}
 .rl{fill:none;stroke-width:2.2px;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.dm line{stroke:#2F4BA8;stroke-width:1.2px;vector-effect:non-scaling-stroke}
+.dm text{font:600 12px var(--f-num);fill:#2F4BA8;text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:4px;pointer-events:none}
+.clr .rul line{stroke:#D9480F;stroke-width:1.6px;vector-effect:non-scaling-stroke;stroke-dasharray:6 3}
+.clr .dm line{stroke:#2F4BA8}
+.clr .dm text,.clr .dm text{fill:#2F4BA8}
+.clr .rul text{font:700 13px var(--f-num);fill:#D9480F;text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:4px}
 .rhit{fill:none;stroke:transparent;stroke-width:16px;vector-effect:non-scaling-stroke;cursor:move}
 .rsel{fill:none;stroke:var(--accent);stroke-opacity:.35;stroke-width:9px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .rtxt{font:700 11px var(--f-num);text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--surface);stroke-width:4px;pointer-events:none}
@@ -149,7 +155,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
 <div class="hero">
   <div class="eyebrow"><a href="../">Дизайн</a> · расстановка мебели</div>
   <h1>Расстановка мебели</h1>
-  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Переключатели вверху показывают или прячут перегородки по чертежу ЕГРН и нарисованные вами – отдельно друг от друга; спрятанные не удаляются. В «Варианте 1» перегородки ЕГРН включены, в вариантах 2 и 3 – выключены. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка»; дверь в неё – кнопкой «+ Проём» у выбранной перегородки. «Замок» фиксирует размер и положение предмета, чтобы случайно не сдвинуть. Инженерия: в каталоге – розетки, выключатели, свет, выводы воды и канализации, вентиляция (условные обозначения по мотивам ГОСТ 21.210 и 21.205), кнопка «〰 Трасса» рисует кабель, трубы В1, Т3, К1 и воздуховоды; слои «Мебель», «Электрика», «Вода», «Вентиляция» включаются отдельно. Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
+  <p class="muted">План – по обмеру 02.11.2026, в сантиметрах. Добавляйте мебель из каталога, двигайте и поворачивайте, меняйте размеры. Синие цифры – зазоры от выбранного предмета до стен и соседней мебели. Переключатели вверху показывают или прячут перегородки по чертежу ЕГРН и нарисованные вами – отдельно друг от друга; спрятанные не удаляются. В «Варианте 1» перегородки ЕГРН включены, в вариантах 2 и 3 – выключены. Выберите предмет – над планом появятся кнопки «Повернуть», «Копия», «Удалить», а по краям – ручки для изменения размера. Новую перегородку рисуйте кнопкой «✏ Перегородка»; дверь в неё – кнопкой «+ Проём» у выбранной перегородки. «Замок» фиксирует размер и положение предмета, чтобы случайно не сдвинуть. Инженерия: в каталоге – розетки, выключатели, свет, выводы воды и канализации, вентиляция (условные обозначения по мотивам ГОСТ 21.210 и 21.205), кнопка «〰 Трасса» рисует кабель, трубы В1, Т3, К1 и воздуховоды; слои «Мебель», «Электрика», «Вода», «Вентиляция» включаются отдельно. «📏 Линейка» меряет расстояние между двумя точками, «↔ Размер» ставит на план свою размерную линию – она прячется вместе со слоем «Размеры». Варианты сохраняются в этом браузере; поделиться – кнопкой «Ссылка».</p>
 </div>
 
 <div id="shared" class="banner" hidden>Открыт вариант по ссылке. <button class="btn" id="keepShared">Сохранить его в текущий вариант</button></div>
@@ -162,6 +168,8 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       </div>
       <button class="btn" id="bDraw" aria-pressed="false">✏ Перегородка</button>
       <button class="btn" id="bRoute" aria-pressed="false">〰 Трасса</button>
+      <button class="btn" id="bRuler" aria-pressed="false" title="Измерить расстояние">📏 Линейка</button>
+      <button class="btn" id="bDim" aria-pressed="false" title="Поставить размер на план">↔ Размер</button>
       <select id="routeK" class="btn" title="Что рисуем" hidden><option value="cable">Кабель</option><option value="B1">В1 – холодная вода</option><option value="T3">Т3 – горячая вода</option><option value="K1">К1 – канализация</option><option value="duct">Воздуховод</option></select>
       <select id="drawT" class="btn" title="Толщина перегородки" hidden><option value="8">8 см</option><option value="10" selected>10 см</option><option value="12">12 см</option><option value="15">15 см</option></select>
       <span class="grp" role="group" aria-label="Перегородки по ЕГРН"><span>Перегородки ЕГРН</span><button class="btn" data-vis="egrn" data-on="1">С</button><button class="btn" data-vis="egrn" data-on="0">Без</button></span>
@@ -175,6 +183,7 @@ kbd{font:11px var(--f-num);border:1px solid var(--line);border-bottom-width:2px;
       <button class="btn" id="undo" title="Отменить (Ctrl+Z)">↶</button>
       <button class="btn" id="zin" title="Приблизить">+</button><button class="btn" id="zout" title="Отдалить">−</button><button class="btn" id="zfit">Весь план</button>
     </div>
+    <div class="bar selbar" id="measBar" hidden><span class="hint" id="measHint"></span><b id="measOut" class="selname"></b><span class="sp"></span><button class="btn" id="measOff">Готово</button></div>
     <div class="bar selbar" id="routeBar" hidden><span class="hint" id="routeHint">Нажимайте по плану точку за точкой – трасса идёт под прямым углом (с <kbd>Shift</kbd> – под любым). Двойное нажатие или «Готово» – закончить.</span><span class="sp"></span><button class="btn" id="routeUndo">↶ Точку</button><button class="btn" id="routeOff">Готово</button></div>
     <div class="bar selbar" id="drawBar" hidden><span class="hint">Ведите по плану от точки до точки – перегородка ляжет ровно и прилипнет к стенам. Двигать план – двумя пальцами или выключите рисование.</span><span class="sp"></span><button class="btn" id="drawOff">Готово</button></div>
     <div class="bar selbar" id="selBar">
@@ -393,11 +402,13 @@ function isKor(it) { return it.type === 'kor' || it.name === 'Колонна, к
 var SYS = { el: '#B45309', water: '#1F5FBF', vent: '#0E7C86' };
 var KIND = { cable: { n: 'Кабель', s: 'el', c: '#B45309' }, B1: { n: 'Холодная вода В1', s: 'water', c: '#1F5FBF', t: 'В1' }, T3: { n: 'Горячая вода Т3', s: 'water', c: '#C0392B', t: 'Т3' }, K1: { n: 'Канализация К1', s: 'water', c: '#7A4E2D', t: 'К1', dash: '7 4' }, duct: { n: 'Воздуховод', s: 'vent', c: '#0E7C86' } };
 function sysOf(it) {
+  if (it.type === 'dim') return null;
   if (it.type === 'route') return (KIND[it.k] || KIND.cable).s;
-  if (!/^u-/.test(it.type)) return ['wall', 'deco', 'door', 'eng'].indexOf(it.cat) < 0 ? 'furn' : null;
+  if (!/^u-/.test(it.type)) return ['wall', 'deco', 'door', 'eng', 'dim'].indexOf(it.cat) < 0 ? 'furn' : null;
   return /^u-(sock|tv|sw|light|spot|lin|box|shield)/.test(it.type) ? 'el' : /^u-(grille|diff|fan|check|brz)/.test(it.type) ? 'vent' : 'water';
 }
-function shown(it) { var s = sysOf(it); return (!it.src || vis[it.src]) && !(s && opts.lay && opts.lay[s] === 0); }
+function isPoly(it) { return it && (it.type === 'route' || it.type === 'dim'); }
+function shown(it) { if (it.type === 'dim') return opts.dims !== 0; var s = sysOf(it); return (!it.src || vis[it.src]) && !(s && opts.lay && opts.lay[s] === 0); }
 function routeLen(it) { var L = 0; for (var i = 1; i < it.pts.length; i++) L += Math.hypot(it.pts[i][0] - it.pts[i - 1][0], it.pts[i][1] - it.pts[i - 1][1]); return Math.round(L); }
 function visBtns() { Array.prototype.forEach.call(document.querySelectorAll('[data-vis]'), function (b) { var on = !!vis[b.getAttribute('data-vis')] === (b.getAttribute('data-on') === '1'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); }
 function save() { store.cur = cur; store.vars[cur] = items; store.vis[cur] = vis; store.opts = opts; try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
@@ -410,9 +421,9 @@ function ext(it) {
   var a = r * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));   // повёрнутый предмет – по описанному прямоугольнику
   return [Math.round((it.w * c + it.d * s) * 10) / 10, Math.round((it.w * s + it.d * c) * 10) / 10];
 }
-function freeRot(it) { return it && it.cat !== 'wall' && it.cat !== 'deco' && it.type !== 'route'; }
+function freeRot(it) { return it && it.cat !== 'wall' && it.cat !== 'deco' && !isPoly(it); }
 function bbox(it) {
-  if (it.type === 'route') { var xs = it.pts.map(function (q) { return q[0]; }), ys = it.pts.map(function (q) { return q[1]; }), pd = (it.w || 0) / 2 + 3; return [Math.min.apply(0, xs) - pd, Math.min.apply(0, ys) - pd, Math.max.apply(0, xs) + pd, Math.max.apply(0, ys) + pd]; }
+  if (isPoly(it)) { var xs = it.pts.map(function (q) { return q[0]; }), ys = it.pts.map(function (q) { return q[1]; }), pd = (it.w || 0) / 2 + 3; return [Math.min.apply(0, xs) - pd, Math.min.apply(0, ys) - pd, Math.max.apply(0, xs) + pd, Math.max.apply(0, ys) + pd]; }
   var e = ext(it); return [it.x - e[0] / 2, it.y - e[1] / 2, it.x + e[0] / 2, it.y + e[1] / 2]; }
 function toWorld(it, lx, ly) { var r = (((it.rot % 360) + 360) % 360) * Math.PI / 180, c = Math.round(Math.cos(r)), s = Math.round(Math.sin(r)); return [it.x + lx * c - ly * s, it.y + lx * s + ly * c]; }
 function lrect(it, x1, y1, x2, y2) { var a = toWorld(it, x1, y1), b = toWorld(it, x2, y2); return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1])]; }
@@ -428,7 +439,7 @@ function ov(a, b) { return a[0] < b[2] - 0.01 && a[2] > b[0] + 0.01 && a[1] < b[
 function obstacles(except) {
   var o = WALLR.map(function (r) { return { n: 'стена', r: r }; }).concat(FIXED);
   if (opts.boxes === 'on') o = o.concat(BOXES);
-  items.forEach(function (it) { if (it !== except && it.type !== 'door' && it.cat !== 'person' && it.cat !== 'eng' && shown(it)) partRects(it).forEach(function (r) { o.push({ n: it.name, r: r, it: it }); }); });
+  items.forEach(function (it) { if (it !== except && it.type !== 'door' && it.cat !== 'person' && it.cat !== 'eng' && it.cat !== 'dim' && shown(it)) partRects(it).forEach(function (r) { o.push({ n: it.name, r: r, it: it }); }); });
   return o;
 }
 function insideFlat(b) {   // всё ли внутри контура квартиры
@@ -437,7 +448,7 @@ function insideFlat(b) {   // всё ли внутри контура кварт
 }
 function pin(x, y) { var c = false; for (var i = 0, j = INNER.length - 1; i < INNER.length; j = i++) { var a = INNER[i], b = INNER[j]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
 function conflicts(it) {
-  if (it.type === 'door' || it.cat === 'person' || it.cat === 'eng') return [];
+  if (it.type === 'door' || it.cat === 'person' || it.cat === 'eng' || it.cat === 'dim') return [];
   var b = bbox(it), out = [];
   if (!insideFlat([b[0] + 0.5, b[1] + 0.5, b[2] - 0.5, b[3] - 0.5])) out.push('выходит за стены');
   obstacles(it).forEach(function (o) {
@@ -539,10 +550,11 @@ function drawItems() {
   var bad = {};
   items.forEach(function (it) { if (shown(it) && conflicts(it).length) bad[it.id] = 1; });
   // перегородки снизу, остальное сверху, выбранный – последним
-  var rank = function (i) { return i.cat === 'wall' ? 0 : i.cat === 'eng' ? 2 : 1; };
+  var rank = function (i) { return i.cat === 'wall' ? 0 : i.cat === 'eng' ? 2 : i.cat === 'dim' ? 3 : 1; };
   var order = items.filter(shown).sort(function (a, b) { return rank(a) - rank(b) || (a === sel) - (b === sel); });
   order.forEach(function (it) {
     if (it.type === 'route') { drawRoute(L, it); return; }
+    if (it.type === 'dim') { drawDimItem(L, it); return; }
     var g = el('g', { 'class': 'it' + (it.cat === 'wall' ? ' wallit' : '') + (it === sel ? ' sel' : '') + (bad[it.id] ? ' bad' : ''), 'data-id': it.id, transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + it.rot + ')' }, L);
     if (it.type === 'round') el('ellipse', { 'class': 'b', cx: 0, cy: 0, rx: it.w / 2, ry: it.d / 2, fill: FILL[it.cat] }, g);
     else if (it.type === 'tri') { el('rect', { x: -it.w / 2, y: -it.d / 2, width: it.w, height: it.d, fill: 'transparent' }, g); el('path', { 'class': 'b', d: roundPoly([[0, -it.d / 2], [it.w / 2, it.d / 2], [-it.w / 2, it.d / 2]], Math.min(14, it.w / 5, it.d / 5)), fill: FILL[it.cat] }, g); }
@@ -689,6 +701,7 @@ function drawClr() {
   var L = $('lClr'); L.textContent = '';
   if (draft) { drawDraft(L); return; }
   if (rdraw) { drawRouteDraft(L); return; }
+  if (mdraw) { drawMeas(L); if (!sel) return; }
   if (sel) drawHandles(L);
   if (!sel || sel.type === 'door' || opts.dims === 0) return;
   var c = clearances(sel), b = c.b;
@@ -737,12 +750,14 @@ function updatePanel(bad) {
   Array.prototype.forEach.call(document.querySelectorAll('#selBar > .szl'), function (l) { l.hidden = !!opOn; });
   if (opOn) { var o = sel.ops[selOp]; if (document.activeElement !== $('oW')) $('oW').value = o[1]; if (document.activeElement !== $('oP')) $('oP').value = Math.round(o[0]); $('oSw').textContent = ['Без двери', 'Дверь ↘', 'Дверь ↙', 'Дверь ↗', 'Дверь ↖'][o[2] || 0] + ' ⟳'; }
   layBtns();
-  var isR = sel && sel.type === 'route', isE = sel && sel.cat === 'eng' && !isR;
+  var isD = sel && sel.type === 'dim', isR = sel && sel.type === 'route', isE = sel && sel.cat === 'eng' && !isR;
   $('rKl').style.display = isR ? '' : 'none'; $('rWl').style.display = isR && sel.k === 'duct' ? '' : 'none'; $('hL').style.display = isE ? '' : 'none';
+  if (isD) { ['sWl', 'sDl'].forEach(function (id) { $(id).parentNode.style.display = 'none'; }); ['tRot', 'tRotL', 'tRotR', 'tAngL', 'tDup'].forEach(function (id) { $(id).style.display = 'none'; }); }
   if (isR) { ['sWl', 'sDl'].forEach(function (id) { $(id).parentNode.style.display = 'none'; }); ['tRot', 'tRotL', 'tRotR', 'tAngL'].forEach(function (id) { $(id).style.display = 'none'; }); $('rK').value = sel.k; if (document.activeElement !== $('rW')) $('rW').value = sel.w || 20; }
   if (isE && document.activeElement !== $('sH')) $('sH').value = sel.h != null ? sel.h : '';
-  ['pW', 'pD', 'pX', 'pY'].forEach(function (id) { $(id).disabled = !!(sel && (sel.lock || isR)); });
+  ['pW', 'pD', 'pX', 'pY'].forEach(function (id) { $(id).disabled = !!(sel && (sel.lock || isR || isD)); });
   if (!sel) { box.hidden = true; $('stSel').textContent = 'Ничего не выбрано'; return; }
+  if (isD) { box.hidden = true; $('selName').textContent = 'Размер · ' + polyLen(sel) + ' см'; $('stSel').innerHTML = 'Размер <b>' + polyLen(sel) + ' см</b>'; return; }
   if (isR) { box.hidden = false; $('selName').textContent = sel.name + ' · ' + routeLen(sel) + ' см'; $('propTitle').textContent = sel.name; if (document.activeElement !== $('pName')) $('pName').value = sel.name; $('pBad').hidden = true; $('stSel').innerHTML = esc(sel.name) + ' <b>' + routeLen(sel) + ' см</b>'; return; }
   box.hidden = false;
   $('selName').textContent = sel.name + ' · ' + sel.w + '×' + sel.d;
@@ -776,7 +791,7 @@ function delOp() { if (selOp == null || sel.lock) return; snapshot(); sel.ops.sp
 function toggleLock() { if (!sel) return; snapshot(); if (sel.lock) delete sel.lock; else sel.lock = 1; save(); drawItems(); }
 $('tLock').onclick = toggleLock; $('bLock').onclick = toggleLock;
 $('tRot').onclick = rot; $('tDup').onclick = dup; $('tDel').onclick = del;
-function rot() { if (!sel || sel.lock || sel.type === 'route') return; snapshot(); sel.rot = norm360((Math.round(sel.rot / 90) * 90) + 90); save(); drawItems(); }
+function rot() { if (!sel || sel.lock || isPoly(sel)) return; snapshot(); sel.rot = norm360((Math.round(sel.rot / 90) * 90) + 90); save(); drawItems(); }
 function norm360(a) { return ((Math.round(a) % 360) + 360) % 360; }
 function rotBy(d) { if (!freeRot(sel) || sel.lock) return; snapshot(); sel.rot = norm360(sel.rot + d); save(); drawItems(); }
 $('tRotL').onclick = function () { rotBy(-15); }; $('tRotR').onclick = function () { rotBy(15); };
@@ -822,7 +837,7 @@ function snapVal(v, axis, except) {
   return r;
 }
 function drawHandles(L) {
-  if (sel.type === 'route') { if (sel.lock) return; sel.pts.forEach(function (q, i) { el('circle', { 'class': 'vh', 'data-v': i, cx: q[0], cy: q[1], r: px(6) }, L); }); return; }
+  if (isPoly(sel)) { if (sel.lock) return; sel.pts.forEach(function (q, i) { el('circle', { 'class': 'vh', 'data-v': i, cx: q[0], cy: q[1], r: px(6) }, L); }); return; }
   if (sel.lock || sel.rot % 90) return;   // под углом размеры меняются полями
   var b = bbox(sel), s = px(11), isW = sel.cat === 'wall' || sel.cat === 'deco', e = ext(sel), horiz = e[0] >= e[1];
   var hs = [['l', b[0], (b[1] + b[3]) / 2], ['r', b[2], (b[1] + b[3]) / 2], ['t', (b[0] + b[2]) / 2, b[1]], ['b', (b[0] + b[2]) / 2, b[3]]];
@@ -848,7 +863,7 @@ function setDraw(on) {
   $('drawT').hidden = !on; $('drawBar').hidden = !on; svg.classList.toggle('drawing', on);
   if (on) sel = null; drawItems();
 }
-$('bDraw').onclick = function () { if (rdraw) setRoute(false); setDraw(!draw); };
+$('bDraw').onclick = function () { if (rdraw) setRoute(false); if (mdraw) setMeas(null); setDraw(!draw); };
 /* ---------- Трассы: кабель, вода, канализация, воздуховоды ---------- */
 var rdraw = null;
 function setRoute(on) {
@@ -882,7 +897,70 @@ function drawRouteDraft(L) {
     el('text', { 'class': 'rtxt', x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2 - px(10), fill: K.c, style: 'font-size:' + px(12) + 'px' }, L, len + ' см');
   }
 }
-$('bRoute').onclick = function () { setRoute(!rdraw); };
+$('bRoute').onclick = function () { if (mdraw) setMeas(null); setRoute(!rdraw); };
+/* ---------- Линейка и размеры ---------- */
+var mdraw = null;
+function polyLen(it) { return routeLen(it); }
+function setMeas(mode) {
+  if (mode && mdraw && mdraw.mode === mode) mode = null;
+  if (mode) { if (rdraw) setRoute(false); if (draw) setDraw(false); sel = null; if (mode === 'dim' && opts.dims === 0) { opts.dims = 1; save(); } }
+  mdraw = mode ? { mode: mode, a: null, b: null, done: false } : null;
+  [['bRuler', 'ruler'], ['bDim', 'dim']].forEach(function (x) { var on = !!mdraw && mdraw.mode === x[1]; $(x[0]).classList.toggle('on', on); $(x[0]).setAttribute('aria-pressed', on); });
+  $('measBar').hidden = !mdraw; svg.classList.toggle('drawing', !!mdraw);
+  measInfo(); drawItems();
+}
+function measInfo() {
+  if (!mdraw) return;
+  $('measHint').textContent = mdraw.mode === 'ruler'
+    ? 'Нажмите в начале и в конце отрезка. Точка липнет к стенам и предметам, линия идёт под прямым углом (с Shift – под любым).'
+    : 'Нажмите в начале и в конце размера – он останется на плане. Точка липнет к стенам и предметам, с Shift – под любым углом.';
+  var o = '';
+  if (mdraw.a && mdraw.b) { var dx = Math.abs(mdraw.b[0] - mdraw.a[0]), dy = Math.abs(mdraw.b[1] - mdraw.a[1]), L = Math.round(Math.hypot(dx, dy)); o = L + ' см'; if (dx && dy) o += ' (по X ' + Math.round(dx) + ', по Y ' + Math.round(dy) + ')'; }
+  $('measOut').textContent = o;
+}
+function measPt(p, free, from) {
+  var st = +opts.snap || 1, x = snapVal(p.x, 'x', null), y = snapVal(p.y, 'y', null), tol = px(10);
+  items.forEach(function (it) { if (!shown(it)) return; if (it.cat === 'eng' && !isPoly(it)) { if (Math.abs(p.x - it.x) < tol) x = it.x; if (Math.abs(p.y - it.y) < tol) y = it.y; } if (it.type === 'route') it.pts.forEach(function (q) { if (Math.abs(p.x - q[0]) < tol) x = q[0]; if (Math.abs(p.y - q[1]) < tol) y = q[1]; }); });
+  if (from && !free) { if (Math.abs(x - from[0]) >= Math.abs(y - from[1])) y = from[1]; else x = from[0]; }
+  return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
+}
+function measClick(p, ev) {
+  if (!mdraw.a || mdraw.done) { mdraw.a = measPt(p, true); mdraw.b = mdraw.a; mdraw.done = false; }
+  else {
+    mdraw.b = measPt(p, ev.shiftKey, mdraw.a);
+    if (mdraw.b[0] === mdraw.a[0] && mdraw.b[1] === mdraw.a[1]) return;
+    if (mdraw.mode === 'dim') { snapshot(); var it = mk('dim', 'Размер', 0, 0, mdraw.a[0], mdraw.a[1], 0, 'dim'); it.pts = [mdraw.a, mdraw.b]; items.push(it); save(); mdraw.a = mdraw.b = null; measInfo(); drawItems(); return; }
+    mdraw.done = true;
+  }
+  measInfo(); drawClr();
+}
+function dimShape(L, a, b, cls, label) {
+  var g = el('g', { 'class': cls }, L), dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy); if (!len) return g;
+  var ux = dx / len, uy = dy / len, nx = -uy, ny = ux, t = px(5), ex = px(4);
+  el('line', { x1: a[0] - ux * ex, y1: a[1] - uy * ex, x2: b[0] + ux * ex, y2: b[1] + uy * ex }, g);
+  [a, b].forEach(function (q) { el('line', { x1: q[0] - (ux + nx) * t * 0.7, y1: q[1] - (uy + ny) * t * 0.7, x2: q[0] + (ux + nx) * t * 0.7, y2: q[1] + (uy + ny) * t * 0.7 }, g); el('line', { x1: q[0] - nx * t * 1.4, y1: q[1] - ny * t * 1.4, x2: q[0] + nx * t * 1.4, y2: q[1] + ny * t * 1.4 }, g); });
+  var ang = Math.atan2(dy, dx) * 180 / Math.PI; if (ang > 90) ang -= 180; else if (ang <= -90) ang += 180; if (Math.abs(ang - 90) < 0.01) ang = -90;
+  var off = px(7), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, sgn = (ang === 90 || ang === -90) ? 1 : -1;
+  var tx = mx + nx * off * (ny < 0 || (ny === 0 && nx < 0) ? 1 : -1), ty = my + ny * off * (ny < 0 || (ny === 0 && nx < 0) ? 1 : -1);
+  el('text', { x: tx, y: ty, transform: 'rotate(' + ang + ' ' + tx + ' ' + ty + ')', style: 'font-size:' + px(12) + 'px' }, g, label);
+  return g;
+}
+function drawDimItem(L, it) {
+  var g = el('g', { 'class': 'it dimit' + (it === sel ? ' sel' : ''), 'data-id': it.id }, L), pts = it.pts.map(function (q) { return q.join(','); }).join(' ');
+  if (it === sel) el('polyline', { 'class': 'rsel', points: pts }, g);
+  dimShape(g, it.pts[0], it.pts[1], 'dm', String(polyLen(it)));
+  el('polyline', { 'class': 'rhit', points: pts }, g);
+}
+function drawMeas(L) {
+  if (!mdraw.a) return;
+  var a = mdraw.a, b = mdraw.b || a;
+  el('circle', { 'class': 'vh', cx: a[0], cy: a[1], r: px(4) }, L);
+  if (b[0] !== a[0] || b[1] !== a[1]) { dimShape(L, a, b, mdraw.mode === 'ruler' ? 'rul' : 'dm', Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])) + (mdraw.mode === 'ruler' ? ' см' : '')); el('circle', { 'class': 'vh', cx: b[0], cy: b[1], r: px(4) }, L); }
+  measInfo();
+}
+$('bRuler').onclick = function () { setMeas('ruler'); };
+$('bDim').onclick = function () { setMeas('dim'); };
+$('measOff').onclick = function () { setMeas(null); };
 $('routeOff').onclick = function () { finishRoute(); setRoute(false); };
 $('routeUndo').onclick = function () { if (rdraw && rdraw.pts.length) { rdraw.pts.pop(); drawClr(); } };
 $('routeK').onchange = function () { if (rdraw) { finishRoute(); rdraw.k = this.value; var s = KIND[rdraw.k].s; if (opts.lay && opts.lay[s] === 0) { opts.lay[s] = 1; save(); drawItems(); } } };
@@ -902,7 +980,8 @@ svg.addEventListener('pointerdown', function (ev) {
   if (Object.keys(pointers).length === 2) { drag = null; rs = null; draft = null; pan = { pinch: dist(), vb: vb.slice() }; drawClr(); return; }
   var p = pt(ev), h = ev.target.getAttribute && ev.target.getAttribute('data-h');
   var vi = ev.target.getAttribute && ev.target.getAttribute('data-v');
-  if (vi != null && sel && sel.type === 'route' && !sel.lock) { snapshot(); vdrag = { i: +vi, moved: false }; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); return; }
+  if (vi != null && sel && isPoly(sel) && !sel.lock) { snapshot(); vdrag = { i: +vi, moved: false }; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); return; }
+  if (mdraw) { measClick(p, ev); ev.preventDefault(); return; }
   if (rdraw) {
     var now = Date.now(), lp = rdraw.lastT && rdraw.pts[rdraw.pts.length - 1];
     ev.preventDefault();
@@ -935,7 +1014,8 @@ svg.addEventListener('pointermove', function (ev) {
   if (opDrag) { var st = +opts.snap || 1, o = opDrag.it.ops[selOp]; o[0] = Math.round((opDrag.p0 + along(opDrag.it, pt(ev)) - opDrag.u0) / st) * st; clampOps(opDrag.it); opDrag.moved = true; drawItems(); }
   else if (rs) { resizeTo(pt(ev)); rs.moved = true; drawItems(); }
   else if (draft) { var q = pt(ev), horiz = Math.abs(q.x - draft.x0) >= Math.abs(q.y - draft.y0); draft.x1 = horiz ? snapVal(q.x, 'x', null) : draft.x0; draft.y1 = horiz ? draft.y0 : snapVal(q.y, 'y', null); if (horiz) draft.y1 = draft.y0; else draft.x1 = draft.x0; drawClr(); }
-  else if (vdrag) { var st2 = +opts.snap || 1, q2 = pt(ev); sel.pts[vdrag.i] = [Math.round(q2.x / st2) * st2, Math.round(q2.y / st2) * st2]; vdrag.moved = true; drawItems(); }
+  else if (vdrag) { var st2 = +opts.snap || 1, q2 = pt(ev); sel.pts[vdrag.i] = sel.type === 'dim' ? measPt(q2, ev.shiftKey, sel.pts[1 - vdrag.i]) : [Math.round(q2.x / st2) * st2, Math.round(q2.y / st2) * st2]; vdrag.moved = true; drawItems(); }
+  else if (mdraw) { if (mdraw.a && !mdraw.done) { mdraw.b = measPt(pt(ev), ev.shiftKey, mdraw.a); drawClr(); } }
   else if (rdraw) { if (rdraw.pts.length) { rdraw.cur = routePt(pt(ev), ev.shiftKey); drawClr(); } }
   else if (drag && drag.pts0) { var p3 = pt(ev), st3 = +opts.snap || 1, dx = Math.round((p3.x - drag.p0[0]) / st3) * st3, dy = Math.round((p3.y - drag.p0[1]) / st3) * st3; drag.it.pts = drag.pts0.map(function (q) { return [q[0] + dx, q[1] + dy]; }); drag.moved = true; drawItems(); }
   else if (drag) { var p = pt(ev); snapMove(drag.it, p.x - drag.dx, p.y - drag.dy); drag.moved = true; drawItems(); }
@@ -993,6 +1073,7 @@ document.addEventListener('keydown', function (ev) {
   if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); undo(); return; }
   if (ev.key === 'Escape' && draw) { setDraw(false); return; }
+  if (mdraw && ev.key === 'Escape') { if (mdraw.a && !mdraw.done) { mdraw.a = mdraw.b = null; drawClr(); measInfo(); } else setMeas(null); return; }
   if (rdraw && ev.key === 'Escape') { if (rdraw.pts.length) { rdraw.pts = []; rdraw.cur = null; drawClr(); } else setRoute(false); return; }
   if (rdraw && ev.key === 'Enter') { finishRoute(); return; }
   if (!sel) return;
@@ -1004,7 +1085,7 @@ document.addEventListener('keydown', function (ev) {
   else if (k === 'l' || k === 'L' || k === 'д' || k === 'Д') toggleLock();
   else if (k === '[' || k === 'х' || k === 'Х') rotBy(-15);
   else if (k === ']' || k === 'ъ' || k === 'Ъ') rotBy(15);
-  else if (/^Arrow/.test(k) && !sel.lock && sel.type !== 'route') { ev.preventDefault(); snapshot(); if (k === 'ArrowLeft') sel.x -= st; if (k === 'ArrowRight') sel.x += st; if (k === 'ArrowUp') sel.y -= st; if (k === 'ArrowDown') sel.y += st; save(); drawItems(); }
+  else if (/^Arrow/.test(k) && !sel.lock && !isPoly(sel)) { ev.preventDefault(); snapshot(); if (k === 'ArrowLeft') sel.x -= st; if (k === 'ArrowRight') sel.x += st; if (k === 'ArrowUp') sel.y -= st; if (k === 'ArrowDown') sel.y += st; save(); drawItems(); }
 });
 function undo() { if (!history.length) return; items = JSON.parse(history.pop()); store.vars[cur] = items; sel = null; save(); drawItems(); }
 $('undo').onclick = undo;
@@ -1137,7 +1218,7 @@ $('bPdf').onclick = function () {
   btn.disabled = true; btn.textContent = 'Готовлю PDF…';
   var p1 = planPage(date, vname);
   var list = items.filter(function (i) { return shown(i) && !(i.cat === 'wall' && i.src === 'egrn'); }).map(function (i) {
-    var bb = bbox(i); if (i.type === 'route') return [i.name, 'длина ' + routeLen(i), Math.round(bb[0]) + ' / ' + Math.round(bb[1]), '']; return [i.name + (i.h != null ? ' · h' + i.h : ''), i.w + ' × ' + i.d, Math.round(bb[0]) + ' / ' + Math.round(bb[1]), (i.ops && i.ops.length ? i.ops.length + ' проём.' : '') + (i.lock ? ' замок' : '')];
+    var bb = bbox(i); if (i.type === 'dim') return ['Размер', polyLen(i) + ' см', Math.round(bb[0]) + ' / ' + Math.round(bb[1]), '']; if (i.type === 'route') return [i.name, 'длина ' + routeLen(i), Math.round(bb[0]) + ' / ' + Math.round(bb[1]), '']; return [i.name + (i.h != null ? ' · h' + i.h : ''), i.w + ' × ' + i.d, Math.round(bb[0]) + ' / ' + Math.round(bb[1]), (i.ops && i.ops.length ? i.ops.length + ' проём.' : '') + (i.lock ? ' замок' : '')];
   });
   var rows = '', y = 44;
   rows += '<text x="16" y="40" style="font:600 3.4px sans-serif;fill:#586277">Предмет</text><text x="120" y="40" style="font:600 3.4px sans-serif;fill:#586277">Длина × глубина</text><text x="160" y="40" style="font:600 3.4px sans-serif;fill:#586277">От левой / от входа</text>';
