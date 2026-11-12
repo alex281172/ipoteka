@@ -15,7 +15,7 @@
 <div class="wrap">
 <header class="site">
   <a class="brand" href="../"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 12h7M14 12h7M12 3v5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Новая квартира</a>
-  <nav class="sections" aria-label="Разделы сайта"><a href="../finansy/">Финансы</a><a href="../remont/">Ремонт</a><a href="../dizain/" aria-current="page">Дизайн</a><a href="../foto/">Фото</a><a href="../zametki/">Заметки</a><a href="../gaid/">Гайд</a><a href="../voprosy/">Вопросы застройщику</a></nav>
+  <nav class="sections" aria-label="Разделы сайта"><a class="lk" href="../finansy/">Финансы</a><a href="../remont/">Ремонт</a><a class="lk" href="../pravila/">Правила УК</a><a href="../dizain/" aria-current="page">Дизайн</a><a href="../foto/">Фото</a><a href="../zametki/">Заметки</a><a href="../gaid/">Гайд</a><a href="../voprosy/">Вопросы застройщику</a></nav>
 </header>
 
 <div class="hero">
@@ -374,6 +374,7 @@
         <li><b>Без порожка и по норме:</b> пол санузла на 15–20 мм ниже прихожей, на входе – плавный скос или переходный профиль. Перепад закладывают в стяжке – решить до неё.</li>
         <li><b>Вровень с прихожей:</b> так часто делают, но это отступление от нормы, и при согласовании перепланировки к нему могут придраться. Тогда обязательно уклон пола к трапу и гидроизоляция с заходом в прихожую.</li>
       </ul>
+      <p class="upd small"><b>Обновлено 12.11.2026:</b> в схеме гидроизоляции от УК порог в дверях санузла – не ниже 40 мм, гидроизоляцию заводят на него. Вариант без порога – только по письменному согласованию с УК; вопрос – в <a href="../pravila/#voprosy-uk">«Правила УК»</a>.</p>
       <p class="src small muted">СП 29.13330.2011 «Полы», п. 4.8</p>
     </div>
     <div class="panel">
@@ -453,13 +454,13 @@
     <ul class="checklist" data-list="sanuzel-inzh" data-group="Техническое оснащение и инженерия">
       <li><label><input type="checkbox" value="inzh-1"><span><b>Расположение водопроводных и канализационного стояков</b><small>По плану из выписки ЕГРН и БТИ: <a href="../zametki/#k-11">К-11</a></small></span></label></li>
       <li><label><input type="checkbox" value="inzh-2"><span><b>Расположение вентшахты</b><small>Короба не сносить – запрет 508-ПП</small></span></label></li>
-      <li><label><input type="checkbox" value="inzh-3"><span><b>Коллекторный узел</b><small>Фильтры, редукторы, счётчики, обратные клапаны. В коробе инсталляции – только с лючком: <a href="../zametki/#k-15">К-15</a></small></span></label></li>
+      <li><label><input type="checkbox" value="inzh-3"><span><b>Коллекторный узел</b><small>Фильтры, редукторы, счётчики, обратные клапаны (на гигиенический душ – обязательны по ТУ). В коробе инсталляции – только с лючком: <a href="../zametki/#k-15">К-15</a>; люки к стоякам – от 300 × 400 мм</small></span></label></li>
       <li><label><input type="checkbox" value="inzh-4"><span><b>Система защиты от протечек</b><small>Краны с электроприводом и датчики – рекомендуем</small></span></label></li>
       <li><label><input type="checkbox" value="inzh-5"><span><b>Водонагреватель накопительный</b></span></label></li>
       <li><label><input type="checkbox" value="inzh-6"><span><b>Водонагреватель проточный</b><small>В сантехкоробе</small></span></label></li>
-      <li><label><input type="checkbox" value="inzh-7"><span><b>Полотенцесушитель электрический</b></span></label></li>
-      <li><label><input type="checkbox" value="inzh-8"><span><b>Полотенцесушитель водяной</b><small>В файле – «лучше отказаться»</small></span></label></li>
-      <li><label><input type="checkbox" value="inzh-9"><span><b>Вентиляция</b><small>Вытяжная решётка, вентилятор</small></span></label></li>
+      <li><label><input type="checkbox" value="inzh-7"><span><b>Полотенцесушитель электрический</b><small>Единственный разрешённый по ТУ УК – нужна отдельная линия</small></span></label></li>
+      <li><label><input type="checkbox" value="inzh-8"><span><b>Полотенцесушитель водяной</b><small>Запрещён техническими условиями УК (12.11.2026) – не планируем</small></span></label></li>
+      <li><label><input type="checkbox" value="inzh-9"><span><b>Вентиляция</b><small>Вытяжная решётка без вентилятора: вентиляторы в каналы ТУ УК запрещают; в двери – переточная решётка; лючки к огнезащитным клапанам</small></span></label></li>
       <li><label><input type="checkbox" value="inzh-10"><span><b>Тёплый пол</b><small>Только электрический: от общедомового отопления и горячей воды делать нельзя</small></span></label></li>
       <li><label><input type="checkbox" value="inzh-11"><span><b>Терморегулятор тёплого пола</b></span></label></li>
       <li><label><input type="checkbox" value="inzh-12"><span><b>Стиральная машина</b><small>Место – в санузле, по правилам <a href="#mokrye">мокрых зон</a>. Дверь под неё – <a href="../zametki/#k-17">К-17</a>, ниша – на 4 см шире машины: <a href="../zametki/#k-18">К-18</a>, дверца – на 120° и больше: <a href="../zametki/#k-19">К-19</a></small></span></label></li>
@@ -491,7 +492,7 @@
       <li><label><input type="checkbox" value="svet-5"><span><b>Подсветка тумбы, ниши или под экраном ванны</b></span></label></li>
       <li><label><input type="checkbox" value="svet-6"><span><b>Розетки влагозащищённые</b><small>Для фена, бритвы, стиральной машины</small></span></label></li>
       <li><label><input type="checkbox" value="svet-7"><span><b>Выключатели</b><small>Один или два сценария – <a href="../zametki/#k-09">К-09</a></small></span></label></li>
-      <li><label><input type="checkbox" value="svet-8"><span><b>Вытяжка на отдельной линии питания</b></span></label></li>
+      <li><label><input type="checkbox" value="svet-8"><span><b>Вытяжка на отдельной линии питания</b><small>Моторный зонт в канал ТУ УК запрещают – рециркуляционная вытяжка с угольным фильтром</small></span></label></li>
       <li><label><input type="checkbox" value="svet-9"><span><b>Подключение сушильной машины</b></span></label></li>
     </ul>
   </details>
